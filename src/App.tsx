@@ -12,6 +12,13 @@ import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import BaseDetails from "./pages/BaseDetails";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminBases from "./pages/admin/AdminBases";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminReviews from "./pages/admin/AdminReviews";
+import AdminStatistics from "./pages/admin/AdminStatistics";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +36,16 @@ const App = () => (
           <Route path="/messages" element={<Messages />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/base/:id" element={<BaseDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          {/* Admin CMS Routes */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/bases" element={<AdminBases />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/reviews" element={<AdminReviews />} />
+          <Route path="/admin/statistics" element={<AdminStatistics />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
