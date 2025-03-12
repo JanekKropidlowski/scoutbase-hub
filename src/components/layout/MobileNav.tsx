@@ -6,7 +6,7 @@ const MobileNav = () => {
   const location = useLocation();
   
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return location.pathname === path || (path !== "/" && location.pathname.startsWith(path));
   };
   
   return (
