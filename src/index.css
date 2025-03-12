@@ -81,8 +81,14 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 16px;
+    @apply antialiased;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased selection:bg-scout-500/20 selection:text-scout-700;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -90,15 +96,27 @@
   }
 
   h1 {
-    @apply text-4xl sm:text-5xl;
+    @apply text-3xl sm:text-4xl font-semibold;
   }
 
   h2 {
-    @apply text-3xl sm:text-4xl;
+    @apply text-2xl sm:text-3xl font-semibold;
   }
 
   h3 {
-    @apply text-2xl sm:text-3xl;
+    @apply text-xl sm:text-2xl font-medium;
+  }
+
+  h4 {
+    @apply text-lg sm:text-xl font-medium;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+
+  .text-balance {
+    text-wrap: balance;
   }
 
   /* Custom animations and utilities */
