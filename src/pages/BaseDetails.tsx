@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
@@ -24,10 +23,10 @@ import {
   ArrowLeft,
   Star,
   Download,
-  Compass
+  Compass,
+  User
 } from "lucide-react";
 
-// Mock data for base details 
 const BASE_DETAILS = {
   id: "1",
   name: "Stanica Harcerska Biały Las",
@@ -96,7 +95,7 @@ const BASE_DETAILS = {
       author: "Szczep 100",
       date: "lipiec 2022",
       rating: 5,
-      content: "Idealne miejsce na obóz harcerski. Jesteśmy tu już trzeci rok z rzędu i zawsze wszystko jest perfekcyjnie przygotowane. Polecamy!"
+      content: "Idealne miejsce na obóz harcerski. Jesteśmy tu już trzeci rok z rzędu i zawsze wszystko jest przygotowane. Polecamy!"
     }
   ],
   availability: [
@@ -123,7 +122,6 @@ const BaseDetails = () => {
   const [activeTab, setActiveTab] = useState("details");
   const [liked, setLiked] = useState(false);
 
-  // This would normally fetch data based on the ID
   const base = BASE_DETAILS;
   
   return (
@@ -131,7 +129,6 @@ const BaseDetails = () => {
       <Navbar />
       
       <main className="flex-grow pt-16">
-        {/* Mobile header */}
         <div className="md:hidden sticky top-16 z-30 bg-white border-b border-gray-200 px-4 py-3 flex items-center">
           <button className="p-1 mr-3">
             <ArrowLeft className="h-5 w-5" />
@@ -148,7 +145,6 @@ const BaseDetails = () => {
           </button>
         </div>
         
-        {/* Image gallery */}
         <div className="relative">
           <div className="relative h-64 md:h-96 bg-gray-200">
             <img 
@@ -214,28 +210,8 @@ const BaseDetails = () => {
           </div>
         </div>
         
-        {/* Thumbnails - desktop only */}
-        <div className="hidden md:grid grid-cols-4 gap-2 mt-2 px-4">
-          {base.images.map((image, index) => (
-            <button
-              key={index}
-              className={`h-24 bg-gray-200 rounded-lg overflow-hidden ${
-                index === activeImageIndex ? 'ring-2 ring-scout-500' : ''
-              }`}
-              onClick={() => setActiveImageIndex(index)}
-            >
-              <img 
-                src={image} 
-                alt={`${base.name} - zdjęcie ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </button>
-          ))}
-        </div>
-        
         <div className="container px-4 py-6">
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Main content */}
             <div className="md:w-2/3">
               <div className="mb-6">
                 <h1 className="text-2xl md:text-3xl font-bold mb-2 hidden md:block">{base.name}</h1>
@@ -302,7 +278,6 @@ const BaseDetails = () => {
                     <h2 className="text-xl font-bold mb-4">Lokalizacja</h2>
                     <p className="text-gray-700 mb-4">{base.location.address}</p>
                     <div className="h-64 bg-gray-200 rounded-lg overflow-hidden">
-                      {/* Map placeholder - would be replaced with actual map component */}
                       <div className="w-full h-full flex items-center justify-center bg-scout-50/20">
                         <Compass className="h-12 w-12 text-scout-500 opacity-50" />
                       </div>
@@ -512,7 +487,6 @@ const BaseDetails = () => {
                               </div>
                             ))}
                             
-                            {/* First day offset - simplified version */}
                             {Array(0).fill(0).map((_, i) => (
                               <div key={`empty-${i}`}></div>
                             ))}
@@ -549,7 +523,6 @@ const BaseDetails = () => {
               </Tabs>
             </div>
             
-            {/* Sidebar */}
             <div className="md:w-1/3">
               <div className="sticky top-24">
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
