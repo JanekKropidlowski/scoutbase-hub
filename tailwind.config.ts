@@ -118,6 +118,11 @@ export default {
 					'100%': {
 						'offset-distance': '100%'
 					}
+				},
+				'pulse': {
+					'0%': { opacity: '0.5' },
+					'50%': { opacity: '1' },
+					'100%': { opacity: '0.5' }
 				}
 			},
 			animation: {
@@ -126,7 +131,8 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'fade-up': 'fade-up 0.5s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
-				'border-beam': 'border-beam 2s infinite linear'
+				'border-beam': 'border-beam 2s infinite linear',
+				'pulse': 'pulse 1.5s ease-in-out infinite'
 			}
 		}
 	},

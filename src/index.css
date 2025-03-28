@@ -46,33 +46,42 @@
   }
 
   .dark {
-    --background: 162 50% 4%;
+    --background: 162 50% 6%;
     --foreground: 156 10% 98%;
 
-    --card: 162 50% 4%;
+    --card: 162 50% 8%;
     --card-foreground: 156 10% 98%;
 
-    --popover: 162 50% 4%;
+    --popover: 162 50% 8%;
     --popover-foreground: 156 10% 98%;
 
-    --primary: 164 80% 30%;
+    --primary: 164 80% 35%;
     --primary-foreground: 156 10% 98%;
 
     --secondary: 164 30% 16%;
     --secondary-foreground: 156 10% 98%;
 
     --muted: 164 30% 16%;
-    --muted-foreground: 164 20% 70%;
+    --muted-foreground: 164 20% 80%;
 
     --accent: 164 30% 16%;
     --accent-foreground: 156 10% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 72.8% 40.6%;
     --destructive-foreground: 156 10% 98%;
 
     --border: 164 30% 16%;
     --input: 164 30% 16%;
-    --ring: 164 100% 40%;
+    --ring: 164 80% 40%;
+
+    --sidebar-background: 162 50% 10%;
+    --sidebar-foreground: 156 10% 90%;
+    --sidebar-primary: 164 80% 35%;
+    --sidebar-primary-foreground: 156 10% 98%;
+    --sidebar-accent: 164 30% 16%;
+    --sidebar-accent-foreground: 156 10% 98%;
+    --sidebar-border: 164 30% 16%;
+    --sidebar-ring: 164 80% 40%;
   }
 }
 
@@ -88,7 +97,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased selection:bg-scout-500/20 selection:text-scout-700;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-scout-500/20 selection:text-scout-700 dark:selection:bg-scout-500/40 dark:selection:text-scout-200;
     font-feature-settings: "rlig" 1, "calt" 1;
     overflow-x: hidden;
   }
@@ -117,13 +126,27 @@
     @apply leading-relaxed;
   }
 
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+
+  /* Improve accessibility */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
 
+  /* Skip to content link for keyboard users */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-3 focus:bg-background focus:text-foreground focus:top-0 focus:left-0;
+  }
+
   /* Custom animations and utilities */
   .glass-card {
-    @apply bg-white/90 backdrop-blur-sm border border-white/40 shadow-sm;
+    @apply bg-white/90 backdrop-blur-sm border border-white/40 shadow-sm dark:bg-black/30 dark:border-white/10;
   }
 
   .animated-border {
@@ -172,13 +195,22 @@
     transform: scale(1.03);
   }
 
+  /* Dark mode specific styles */
+  .dark .glass-card {
+    @apply bg-black/30 backdrop-blur-md border-white/10;
+  }
+
+  .dark .hover-lift:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
   /* Mobile optimizations */
   .mobile-safe-area {
     padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
   }
 
   .mobile-card {
-    @apply rounded-xl shadow-sm border border-gray-100;
+    @apply rounded-xl shadow-sm border border-gray-100 dark:border-gray-800;
   }
 
   .mobile-btn {
@@ -222,5 +254,17 @@
     0% { opacity: 0.5; }
     50% { opacity: 1; }
     100% { opacity: 0.5; }
+  }
+
+  /* Improved focus styles for accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* High contrast mode improvements */
+  @media (forced-colors: active) {
+    .btn, button, a {
+      forced-color-adjust: none;
+    }
   }
 }

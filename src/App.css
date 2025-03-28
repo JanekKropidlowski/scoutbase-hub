@@ -79,6 +79,10 @@
   transition: transform 0.4s, opacity 0.7s;
 }
 
+.dark .touch-effect::after {
+  background-image: radial-gradient(circle, #333 10%, transparent 10.01%);
+}
+
 .touch-effect:active::after {
   transform: scale(0, 0);
   opacity: 0.3;
@@ -93,8 +97,19 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+.dark .modern-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .modern-card:active {
   transform: scale(0.98);
+}
+
+/* Accessibility improvements for interactive elements */
+button, 
+a[role="button"],
+.interactive {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
 }
 
 /* Map-specific styles */
@@ -127,8 +142,17 @@
   transition: all 0.2s;
 }
 
+.dark .map-control {
+  background: #222;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
 .map-control:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark .map-control:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .map-filter-pill {
@@ -146,6 +170,11 @@
   color: #0ea5e9;
 }
 
+.dark .map-filter-pill.active {
+  background-color: #1e3a5f;
+  color: #7dd3fc;
+}
+
 /* Scrollbar for map lists */
 .scrollbar-thin {
   scrollbar-width: thin;
@@ -156,8 +185,16 @@
   border-radius: 9999px;
 }
 
+.dark .scrollbar-thumb-scout-200::-webkit-scrollbar-thumb {
+  background-color: #334155;
+}
+
 .scrollbar-thumb-scout-200 {
   scrollbar-color: #e2e8f0 transparent;
+}
+
+.dark .scrollbar-thumb-scout-200 {
+  scrollbar-color: #334155 transparent;
 }
 
 .scrollbar-hide {
@@ -189,4 +226,41 @@
 
 .animate-pulse-location {
   animation: pulse 2s infinite;
+}
+
+.dark .animate-pulse-location {
+  animation: darkPulse 2s infinite;
+}
+
+@keyframes darkPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(96, 165, 250, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0);
+  }
+}
+
+/* Contrast and accessibility improvements */
+.high-contrast {
+  --contrast-ratio: 1.5;
+  filter: contrast(var(--contrast-ratio));
+}
+
+/* Focus visible polyfill support */
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
+.js-focus-visible .focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
