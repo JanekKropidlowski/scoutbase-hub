@@ -19,8 +19,12 @@ const MobileNav = () => {
               ? "text-scout-500 relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-scout-500 after:rounded-full" 
               : "text-gray-500"
           }`}
+          aria-label="Szukaj"
         >
-          <Search className={`h-5 w-5 ${isActive("/search") ? "stroke-[2.5px]" : ""}`} />
+          <div className="relative">
+            <Search className={`h-5 w-5 ${isActive("/search") ? "stroke-[2.5px]" : ""}`} />
+            {isActive("/search") && <div className="absolute inset-0 animate-pulse opacity-30 bg-scout-500 rounded-full -m-1"></div>}
+          </div>
           <span className="text-xs mt-1 font-medium">Szukaj</span>
         </Link>
         
@@ -31,8 +35,12 @@ const MobileNav = () => {
               ? "text-scout-500 relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-scout-500 after:rounded-full" 
               : "text-gray-500"
           }`}
+          aria-label="Mapa"
         >
-          <MapPin className={`h-5 w-5 ${isActive("/map") ? "stroke-[2.5px]" : ""}`} />
+          <div className="relative">
+            <MapPin className={`h-5 w-5 ${isActive("/map") ? "stroke-[2.5px]" : ""}`} />
+            {isActive("/map") && <div className="absolute inset-0 animate-pulse opacity-30 bg-scout-500 rounded-full -m-1"></div>}
+          </div>
           <span className="text-xs mt-1 font-medium">Mapa</span>
         </Link>
         
@@ -43,8 +51,12 @@ const MobileNav = () => {
               ? "text-scout-500 relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-scout-500 after:rounded-full" 
               : "text-gray-500"
           }`}
+          aria-label="Ulubione"
         >
-          <Heart className={`h-5 w-5 ${isActive("/favorites") ? "stroke-[2.5px]" : ""}`} />
+          <div className="relative">
+            <Heart className={`h-5 w-5 ${isActive("/favorites") ? "stroke-[2.5px]" : ""}`} />
+            {isActive("/favorites") && <div className="absolute inset-0 animate-pulse opacity-30 bg-scout-500 rounded-full -m-1"></div>}
+          </div>
           <span className="text-xs mt-1 font-medium">Ulubione</span>
         </Link>
         
@@ -55,8 +67,12 @@ const MobileNav = () => {
               ? "text-scout-500 relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-scout-500 after:rounded-full" 
               : "text-gray-500"
           }`}
+          aria-label="Wiadomości"
         >
-          <MessageSquare className={`h-5 w-5 ${isActive("/messages") ? "stroke-[2.5px]" : ""}`} />
+          <div className="relative">
+            <MessageSquare className={`h-5 w-5 ${isActive("/messages") ? "stroke-[2.5px]" : ""}`} />
+            {isActive("/messages") && <div className="absolute inset-0 animate-pulse opacity-30 bg-scout-500 rounded-full -m-1"></div>}
+          </div>
           <span className="text-xs mt-1 font-medium">Wiadomości</span>
         </Link>
         
@@ -67,8 +83,12 @@ const MobileNav = () => {
               ? "text-scout-500 relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-scout-500 after:rounded-full" 
               : "text-gray-500"
           }`}
+          aria-label="Profil"
         >
-          <User className={`h-5 w-5 ${isActive("/profile") ? "stroke-[2.5px]" : ""}`} />
+          <div className="relative">
+            <User className={`h-5 w-5 ${isActive("/profile") ? "stroke-[2.5px]" : ""}`} />
+            {isActive("/profile") && <div className="absolute inset-0 animate-pulse opacity-30 bg-scout-500 rounded-full -m-1"></div>}
+          </div>
           <span className="text-xs mt-1 font-medium">Profil</span>
         </Link>
       </div>
