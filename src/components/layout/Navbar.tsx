@@ -2,10 +2,10 @@
 import { Link } from "react-router-dom";
 import { SearchIcon, Menu, User, MapPin, Heart, MessageSquare, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true); // This would normally be determined by auth state
 
   useEffect(() => {
@@ -20,20 +20,20 @@ const Navbar = () => {
   return (
     <header 
       className={`fixed top-0 w-full z-50 transition-all duration-300 ease-in-out ${
-        scrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
+        scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-transparent"
       }`}
     >
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="relative h-10 w-10 flex items-center justify-center bg-scout-500 rounded-full overflow-hidden">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-8 w-8">
+        <Link to="/" className="flex items-center gap-2 press-effect">
+          <div className="relative h-9 w-9 flex items-center justify-center bg-scout-500 rounded-full overflow-hidden">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7">
               <path d="M20 5L26 12L20 19L14 12L20 5Z" fill="white" />
               <path d="M20 21L26 28L20 35L14 28L20 21Z" fill="white" />
               <path d="M5 13L11 20L5 27L5 13Z" fill="white" />
               <path d="M35 13L29 20L35 27L35 13Z" fill="white" />
             </svg>
           </div>
-          <span className="sr-only md:not-sr-only md:text-xl font-medium text-scout-500">
+          <span className="sr-only md:not-sr-only md:text-lg font-semibold text-scout-500">
             BazyHarcerskie.pl
           </span>
         </Link>
@@ -69,51 +69,52 @@ const Navbar = () => {
           </div>
         </div>
         
-        <button className="md:hidden flex items-center justify-center" onClick={() => setMenuOpen(!menuOpen)}>
-          <Menu className="h-6 w-6" />
-        </button>
-      </div>
-      
-      {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 animate-fade-in">
-          <nav className="flex flex-col p-4">
-            <Link to="/map" className="py-3 border-b border-gray-100 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-              <MapPin className="h-5 w-5 text-scout-500" />
-              <span>Mapa</span>
-            </Link>
-            <Link to="/search" className="py-3 border-b border-gray-100 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-              <SearchIcon className="h-5 w-5 text-scout-500" />
-              <span>Szukaj bazy</span>
-            </Link>
-            <Link to="/favorites" className="py-3 border-b border-gray-100 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-              <Heart className="h-5 w-5 text-scout-500" />
-              <span>Ulubione</span>
-            </Link>
-            <Link to="/messages" className="py-3 border-b border-gray-100 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-              <MessageSquare className="h-5 w-5 text-scout-500" />
-              <span>Wiadomości</span>
-            </Link>
-            <Link to="/profile" className="py-3 border-b border-gray-100 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-              <User className="h-5 w-5 text-scout-500" />
-              <span>Profil</span>
-            </Link>
-            {isAdmin && (
-              <Link to="/admin" className="py-3 border-b border-gray-100 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-                <LayoutDashboard className="h-5 w-5 text-scout-500" />
-                <span>Panel CMS</span>
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="md:hidden flex items-center justify-center press-effect" aria-label="Menu">
+              <Menu className="h-6 w-6" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[85%] pt-12 px-4">
+            <nav className="flex flex-col p-2 space-y-1">
+              <Link to="/map" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-scout-500" />
+                <span className="font-medium">Mapa</span>
               </Link>
-            )}
-          </nav>
-          <div className="flex items-center gap-2 p-4 pt-0">
-            <Link to="/login" className="flex-1 text-center py-2 border border-scout-500 text-scout-500 rounded-full" onClick={() => setMenuOpen(false)}>
-              Zaloguj
-            </Link>
-            <Link to="/register" className="flex-1 text-center bg-scout-500 text-white py-2 rounded-full" onClick={() => setMenuOpen(false)}>
-              Rejestracja
-            </Link>
-          </div>
-        </div>
-      )}
+              <Link to="/search" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                <SearchIcon className="h-5 w-5 text-scout-500" />
+                <span className="font-medium">Szukaj bazy</span>
+              </Link>
+              <Link to="/favorites" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                <Heart className="h-5 w-5 text-scout-500" />
+                <span className="font-medium">Ulubione</span>
+              </Link>
+              <Link to="/messages" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                <MessageSquare className="h-5 w-5 text-scout-500" />
+                <span className="font-medium">Wiadomości</span>
+              </Link>
+              <Link to="/profile" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                <User className="h-5 w-5 text-scout-500" />
+                <span className="font-medium">Profil</span>
+              </Link>
+              {isAdmin && (
+                <Link to="/admin" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                  <LayoutDashboard className="h-5 w-5 text-scout-500" />
+                  <span className="font-medium">Panel CMS</span>
+                </Link>
+              )}
+            </nav>
+            <div className="flex flex-col gap-3 mt-6 px-2">
+              <Link to="/login" className="w-full text-center py-2.5 border border-scout-500 text-scout-500 rounded-xl font-medium">
+                Zaloguj
+              </Link>
+              <Link to="/register" className="w-full text-center bg-scout-500 text-white py-2.5 rounded-xl font-medium">
+                Rejestracja
+              </Link>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
     </header>
   );
 };

@@ -84,11 +84,13 @@
   html {
     font-size: 16px;
     @apply antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased selection:bg-scout-500/20 selection:text-scout-700;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -121,7 +123,7 @@
 
   /* Custom animations and utilities */
   .glass-card {
-    @apply bg-white/90 backdrop-blur-sm border border-white/40 shadow-lg;
+    @apply bg-white/90 backdrop-blur-sm border border-white/40 shadow-sm;
   }
 
   .animated-border {
@@ -168,5 +170,57 @@
   
   .base-card:hover .base-image {
     transform: scale(1.03);
+  }
+
+  /* Mobile optimizations */
+  .mobile-safe-area {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+
+  .mobile-card {
+    @apply rounded-xl shadow-sm border border-gray-100;
+  }
+
+  .mobile-btn {
+    @apply rounded-full shadow-sm active:scale-95 transition-transform;
+  }
+
+  .press-effect {
+    @apply active:scale-95 transition-transform;
+  }
+
+  .bottom-sheet {
+    @apply rounded-t-2xl shadow-lg;
+  }
+
+  /* Modern mobile scroll effects */
+  .scroll-snap-x {
+    @apply overflow-x-auto scrollbar-none;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scroll-snap-x > * {
+    scroll-snap-align: start;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Fresh loading animation */
+  .pulsate {
+    animation: pulsate 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulsate {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
   }
 }
