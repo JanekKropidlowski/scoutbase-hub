@@ -1,24 +1,18 @@
 
 import { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
-import { useToast } from "@/hooks/use-toast";
-import { Message } from "@/types/message";
-import { formatTimestamp } from "@/data/mockMessages";
-import ConversationList from "@/components/messages/ConversationList";
-import MessageThread from "@/components/messages/MessageThread";
-import EmptyState from "@/components/messages/EmptyState";
+import { Message, Conversation } from "@/types/message";
 import { db } from "@/services/database";
+import { useToast } from "@/hooks/use-toast";
+import { formatTimestamp } from "@/data/mockMessages";
 
-const Messages = () => {
+export const useMessages = () => {
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
-  const [conversations, setConversations] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   
-  // Load conversations on mount
+  // Load conversations
   useEffect(() => {
     const loadConversations = async () => {
       try {
@@ -45,7 +39,7 @@ const Messages = () => {
     loadConversations();
   }, []);
   
-  // Load messages when active conversation changes
+  // Load messages for active conversation
   useEffect(() => {
     if (!activeConversation) return;
     
@@ -74,8 +68,9 @@ const Messages = () => {
     loadMessages();
   }, [activeConversation]);
   
-  const handleSendMessage = async (messageText: string) => {
-    if (!activeConversation) return;
+  // Send a message
+  const sendMessage = async (messageText: string) => {
+    if (!activeConversation || !messageText.trim()) return;
     
     try {
       // Send the message
@@ -126,6 +121,8 @@ const Messages = () => {
           description: `${conversations.find(c => c.id === activeConversation)?.name}: ${replyContent.substring(0, 60)}${replyContent.length > 60 ? '...' : ''}`,
         });
       }, 2000);
+      
+      return true;
     } catch (error) {
       console.error("Failed to send message:", error);
       toast({
@@ -133,59 +130,16 @@ const Messages = () => {
         description: "Nie udało się wysłać wiadomości",
         variant: "destructive",
       });
+      return false;
     }
   };
   
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow pt-16 flex items-center justify-center">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
-            <div className="h-4 w-48 bg-gray-200 rounded"></div>
-          </div>
-        </main>
-        <Footer />
-        <MobileNav />
-      </div>
-    );
-  }
-  
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow pt-16">
-        <div className="container px-0 md:px-4 py-0 md:py-8 h-[calc(100vh-16rem)] md:h-[calc(100vh-12rem)]">
-          <div className="bg-white md:rounded-xl border md:shadow-sm h-full flex flex-col md:flex-row overflow-hidden">
-            {/* Conversations list */}
-            <ConversationList
-              conversations={conversations}
-              activeConversation={activeConversation}
-              setActiveConversation={(id) => setActiveConversation(id)}
-            />
-            
-            {/* Message thread or empty state */}
-            {activeConversation ? (
-              <MessageThread
-                activeConversation={activeConversation}
-                messages={messages}
-                conversations={conversations}
-                onSendMessage={handleSendMessage}
-                onBackClick={() => setActiveConversation(null)}
-              />
-            ) : (
-              <EmptyState />
-            )}
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-      <MobileNav />
-    </div>
-  );
+  return {
+    activeConversation,
+    setActiveConversation,
+    conversations,
+    messages,
+    loading,
+    sendMessage
+  };
 };
-
-export default Messages;

@@ -18,6 +18,9 @@ const MessageItem = ({ message }: MessageItemProps) => {
           ? 'bg-scout-500 text-white rounded-tr-none' 
           : 'bg-gray-100 text-gray-800 rounded-tl-none'
       }`}>
+        {!isUser && message.senderName && (
+          <p className="text-xs font-medium text-gray-600 mb-1">{message.senderName}</p>
+        )}
         <p>{message.content}</p>
         <div className={`text-xs mt-1 flex justify-end items-center gap-1 ${
           isUser ? 'text-scout-100' : 'text-gray-500'
