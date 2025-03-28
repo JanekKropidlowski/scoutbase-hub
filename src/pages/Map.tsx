@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
-import { MapPin, Search, List, ArrowLeft, Filter, Navigation, MapPinCheck } from "lucide-react";
+import { MapPin, Search, List, ArrowLeft, Filter, Navigation, MapPinCheck, Heart } from "lucide-react";
 import MapExplorer from "@/components/ui/MapExplorer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
