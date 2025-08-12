@@ -1,0 +1,1 @@
+Everything should be in Polish - both table names and column names (e.g. 'nazwa_obiektu', 'krotki_opis', 'dlugi_opis', etc.)
