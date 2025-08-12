@@ -445,9 +445,106 @@ const ScoutBaseForm: React.FC<ScoutBaseFormProps> = ({ baseId, onSave, onCancel 
               <CardDescription>Klasyfikacja i kategorie bazy</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Multiple select components for categories would go here */}
-              <div className="text-sm text-gray-500">
-                Kategorie zostaną dodane w następnej iteracji
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label>Typ obiektu</Label>
+                  <div className="space-y-2 mt-2">
+                    {categories.baseTypes.map((type: any) => (
+                      <div key={type.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`base-type-${type.id}`}
+                          checked={watch("base_type_ids")?.includes(type.id) || false}
+                          onCheckedChange={(checked) => {
+                            const current = watch("base_type_ids") || [];
+                            if (checked) {
+                              setValue("base_type_ids", [...current, type.id]);
+                            } else {
+                              setValue("base_type_ids", current.filter(id => id !== type.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`base-type-${type.id}`} className="text-sm font-normal">
+                          {type.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Region</Label>
+                  <div className="space-y-2 mt-2">
+                    {categories.regions.map((region: any) => (
+                      <div key={region.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`region-${region.id}`}
+                          checked={watch("region_ids")?.includes(region.id) || false}
+                          onCheckedChange={(checked) => {
+                            const current = watch("region_ids") || [];
+                            if (checked) {
+                              setValue("region_ids", [...current, region.id]);
+                            } else {
+                              setValue("region_ids", current.filter(id => id !== region.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`region-${region.id}`} className="text-sm font-normal">
+                          {region.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Sezon działania</Label>
+                  <div className="space-y-2 mt-2">
+                    {categories.seasons.map((season: any) => (
+                      <div key={season.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`season-${season.id}`}
+                          checked={watch("season_ids")?.includes(season.id) || false}
+                          onCheckedChange={(checked) => {
+                            const current = watch("season_ids") || [];
+                            if (checked) {
+                              setValue("season_ids", [...current, season.id]);
+                            } else {
+                              setValue("season_ids", current.filter(id => id !== season.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`season-${season.id}`} className="text-sm font-normal">
+                          {season.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Dostępność</Label>
+                  <div className="space-y-2 mt-2">
+                    {categories.availabilityTypes.map((type: any) => (
+                      <div key={type.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`availability-${type.id}`}
+                          checked={watch("availability_type_ids")?.includes(type.id) || false}
+                          onCheckedChange={(checked) => {
+                            const current = watch("availability_type_ids") || [];
+                            if (checked) {
+                              setValue("availability_type_ids", [...current, type.id]);
+                            } else {
+                              setValue("availability_type_ids", current.filter(id => id !== type.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`availability-${type.id}`} className="text-sm font-normal">
+                          {type.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -507,13 +604,100 @@ const ScoutBaseForm: React.FC<ScoutBaseFormProps> = ({ baseId, onSave, onCancel 
               </Button>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Transport i dostępność</CardTitle>
+              <CardDescription>Informacje o dostępie komunikacyjnym</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {transportFields.map((field, index) => (
+                <div key={field.id} className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <Label>Typ transportu</Label>
+                    <Select
+                      onValueChange={(value) => 
+                        setValue(`transport_accessibility_details.${index}.type_id`, value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz typ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.transportAccessibility.map((type: any) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="w-32">
+                    <Label>Odległość (km)</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      {...register(`transport_accessibility_details.${index}.distance_km`, { valueAsNumber: true })}
+                      placeholder="Odległość"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => removeTransport(index)}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => appendTransport({ type_id: "", distance_km: undefined })}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Dodaj informację o transporcie
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="features" className="space-y-6">
           <Card>
             <CardHeader>
+              <CardTitle>Wyposażenie</CardTitle>
+              <CardDescription>Dostępne wyposażenie i udogodnienia</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {categories.equipmentTypes.map((equipment: any) => (
+                  <div key={equipment.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`equipment-${equipment.id}`}
+                      checked={watch("equipment_type_ids")?.includes(equipment.id) || false}
+                      onCheckedChange={(checked) => {
+                        const current = watch("equipment_type_ids") || [];
+                        if (checked) {
+                          setValue("equipment_type_ids", [...current, equipment.id]);
+                        } else {
+                          setValue("equipment_type_ids", current.filter(id => id !== equipment.id));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`equipment-${equipment.id}`} className="text-sm font-normal">
+                      {equipment.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Dodatkowe funkcje</CardTitle>
-              <CardDescription>Wyposażenie i udogodnienia</CardDescription>
+              <CardDescription>Specjalne udogodnienia i możliwości</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
@@ -546,6 +730,15 @@ const ScoutBaseForm: React.FC<ScoutBaseFormProps> = ({ baseId, onSave, onCancel 
               </div>
 
               <div>
+                <Label htmlFor="nearest_transport_info">Najbliższy transport publiczny</Label>
+                <Textarea
+                  id="nearest_transport_info"
+                  {...register("nearest_transport_info")}
+                  placeholder="Informacje o dostępie komunikacji publicznej"
+                />
+              </div>
+
+              <div>
                 <Label htmlFor="nearby_attractions">Atrakcje w okolicy</Label>
                 <Textarea
                   id="nearby_attractions"
@@ -553,6 +746,7 @@ const ScoutBaseForm: React.FC<ScoutBaseFormProps> = ({ baseId, onSave, onCancel 
                   placeholder="Maksymalnie 300 znaków"
                   maxLength={300}
                 />
+                {errors.nearby_attractions && <p className="text-sm text-red-500 mt-1">{errors.nearby_attractions.message}</p>}
               </div>
 
               <div>
@@ -561,6 +755,43 @@ const ScoutBaseForm: React.FC<ScoutBaseFormProps> = ({ baseId, onSave, onCancel 
                   id="additional_notes"
                   {...register("additional_notes")}
                   placeholder="Dodatkowe informacje"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Sezon i cennik</CardTitle>
+              <CardDescription>Informacje o sezonie działania i cenach</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="season_start">Początek sezonu</Label>
+                  <Input
+                    id="season_start"
+                    type="date"
+                    {...register("season_start")}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="season_end">Koniec sezonu</Label>
+                  <Input
+                    id="season_end"
+                    type="date"
+                    {...register("season_end")}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="pricing_description">Opis cennika</Label>
+                <Textarea
+                  id="pricing_description"
+                  {...register("pricing_description")}
+                  placeholder="Krótki opis cen i warunków"
                 />
               </div>
             </CardContent>
