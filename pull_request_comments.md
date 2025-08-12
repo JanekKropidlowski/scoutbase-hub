@@ -1,0 +1,1 @@
+Implement full CMS functionality with two user roles: super admins who can manage everything and regular base owners who can only manage their own bases.
