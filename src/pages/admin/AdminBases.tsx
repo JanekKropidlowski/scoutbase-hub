@@ -1,86 +1,85 @@
 
 import AdminLayout from "@/components/admin/AdminLayout";
+import ScoutBaseForm from "@/components/admin/ScoutBaseForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PlusCircle, Search, Edit, Trash2, Eye, ArrowUpDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ScoutBaseService } from "@/services/scout-base-service";
+import { ScoutBaseWithDetails, ScoutBaseFormData } from "@/types/scout-base";
+import { toast } from "sonner";
 
-const BASES_MOCK_DATA = [
-  {
-    id: "1",
-    name: "Stanica Harcerska Biały Las",
-    location: "Mazury, woj. warmińsko-mazurskie",
-    capacity: 120,
-    owner: "Hufiec ZHP Warszawa-Mokotów",
-    status: "active",
-    lastUpdated: "2023-05-15"
-  },
-  {
-    id: "2",
-    name: "Baza Harcerska Leśne Ustronie", 
-    location: "Bieszczady, woj. podkarpackie",
-    capacity: 90,
-    owner: "Chorągiew Podkarpacka ZHP",
-    status: "active",
-    lastUpdated: "2023-04-22"
-  },
-  {
-    id: "3",
-    name: "Stanica Wodna Bryza",
-    location: "Pomorze, woj. pomorskie",
-    capacity: 75,
-    owner: "Hufiec ZHP Gdańsk-Wrzeszcz",
-    status: "pending",
-    lastUpdated: "2023-06-03"
-  },
-  {
-    id: "4",
-    name: "Baza Obozowa Watra",
-    location: "Tatry, woj. małopolskie", 
-    capacity: 150,
-    owner: "Chorągiew Krakowska ZHP",
-    status: "active",
-    lastUpdated: "2023-03-17"
-  },
-  {
-    id: "5",
-    name: "Ośrodek Harcerski Perkoz",
-    location: "Mazury, woj. warmińsko-mazurskie",
-    capacity: 200,
-    owner: "Główna Kwatera ZHP",
-    status: "active",
-    lastUpdated: "2023-05-30"
-  },
-  {
-    id: "6",
-    name: "Stanica Harcerska Zielona Polana",
-    location: "Bory Tucholskie, woj. pomorskie",
-    capacity: 85,
-    owner: "Hufiec ZHP Toruń",
-    status: "inactive",
-    lastUpdated: "2023-02-11"
-  },
-  {
-    id: "7",
-    name: "Baza Obozowa Dolina Wilka",
-    location: "Sudety, woj. dolnośląskie",
-    capacity: 100,
-    owner: "Chorągiew Dolnośląska ZHP",
-    status: "active",
-    lastUpdated: "2023-04-08"
-  }
-];
 
 const AdminBases = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showForm, setShowForm] = useState(false);
+  const [editingBaseId, setEditingBaseId] = useState<string | undefined>();
+  const [bases, setBases] = useState<ScoutBaseWithDetails[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  const filteredBases = BASES_MOCK_DATA.filter(base => {
+  useEffect(() => {
+    loadBases();
+  }, []);
+
+  const loadBases = async () => {
+    try {
+      setLoading(true);
+      const data = await ScoutBaseService.getScoutBases();
+      setBases(data);
+    } catch (error) {
+      toast.error("Błąd podczas ładowania baz");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddNew = () => {
+    setEditingBaseId(undefined);
+    setShowForm(true);
+  };
+
+  const handleEdit = (baseId: string) => {
+    setEditingBaseId(baseId);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (baseId: string) => {
+    if (confirm("Czy na pewno chcesz usunąć tę bazę?")) {
+      try {
+        await ScoutBaseService.deleteScoutBase(baseId);
+        toast.success("Baza została usunięta");
+        loadBases();
+      } catch (error) {
+        toast.error("Błąd podczas usuwania bazy");
+      }
+    }
+  };
+
+  const handleSave = async (data: ScoutBaseFormData) => {
+    try {
+      if (editingBaseId) {
+        await ScoutBaseService.updateScoutBase(editingBaseId, data);
+      } else {
+        await ScoutBaseService.createScoutBase(data);
+      }
+      setShowForm(false);
+      loadBases();
+    } catch (error) {
+      throw error; // Let the form handle the error
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingBaseId(undefined);
+  };
+
+  const filteredBases = bases.filter(base => {
     const matchesSearch = base.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         base.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         base.owner.toLowerCase().includes(searchQuery.toLowerCase());
+                         base.address_city.toLowerCase().includes(searchQuery.toLowerCase());
                          
     const matchesStatus = statusFilter === "all" || base.status === statusFilter;
     
@@ -89,18 +88,18 @@ const AdminBases = () => {
   
   const statusOptions = [
     { value: "all", label: "Wszystkie statusy" },
-    { value: "active", label: "Aktywna" },
-    { value: "pending", label: "Oczekująca" },
-    { value: "inactive", label: "Nieaktywna" }
+    { value: "published", label: "Opublikowana" },
+    { value: "draft", label: "Szkic" },
+    { value: "archived", label: "Zarchiwizowana" }
   ];
   
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case "active":
+      case "published":
         return "bg-green-100 text-green-800";
-      case "pending":
+      case "draft":
         return "bg-yellow-100 text-yellow-800";
-      case "inactive":
+      case "archived":
         return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -109,16 +108,28 @@ const AdminBases = () => {
   
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "active":
-        return "Aktywna";
-      case "pending":
-        return "Oczekująca";
-      case "inactive":
-        return "Nieaktywna";
+      case "published":
+        return "Opublikowana";
+      case "draft":
+        return "Szkic";
+      case "archived":
+        return "Zarchiwizowana";
       default:
         return status;
     }
   };
+
+  if (showForm) {
+    return (
+      <AdminLayout>
+        <ScoutBaseForm
+          baseId={editingBaseId}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -128,7 +139,7 @@ const AdminBases = () => {
             <h1 className="text-2xl font-bold tracking-tight">Bazy harcerskie</h1>
             <p className="text-muted-foreground">Zarządzaj bazami harcerskimi w systemie</p>
           </div>
-          <Button className="bg-scout-500 hover:bg-scout-600">
+          <Button className="bg-scout-500 hover:bg-scout-600" onClick={handleAddNew}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Dodaj nową bazę
           </Button>
@@ -171,48 +182,72 @@ const AdminBases = () => {
                 </TableHead>
                 <TableHead>Lokalizacja</TableHead>
                 <TableHead className="text-center">Pojemność</TableHead>
-                <TableHead>Właściciel</TableHead>
+                <TableHead>E-mail</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Ostatnia aktualizacja</TableHead>
                 <TableHead className="text-right">Akcje</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredBases.map((base) => (
-                <TableRow key={base.id}>
-                  <TableCell className="font-medium">#{base.id}</TableCell>
-                  <TableCell>{base.name}</TableCell>
-                  <TableCell>{base.location}</TableCell>
-                  <TableCell className="text-center">{base.capacity}</TableCell>
-                  <TableCell>{base.owner}</TableCell>
-                  <TableCell>
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeClass(base.status)}`}>
-                      {getStatusLabel(base.status)}
-                    </span>
-                  </TableCell>
-                  <TableCell>{base.lastUpdated}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="icon" className="h-8 w-8">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    Ładowanie...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : filteredBases.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    Brak baz do wyświetlenia
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredBases.map((base) => (
+                  <TableRow key={base.id}>
+                    <TableCell className="font-medium">#{base.id.slice(-6)}</TableCell>
+                    <TableCell>{base.name}</TableCell>
+                    <TableCell>{base.address_city}</TableCell>
+                    <TableCell className="text-center">{base.capacity_total}</TableCell>
+                    <TableCell>{base.contact_email}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeClass(base.status)}`}>
+                        {getStatusLabel(base.status)}
+                      </span>
+                    </TableCell>
+                    <TableCell>{new Date(base.updated_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={() => handleEdit(base.id)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-8 w-8 text-red-500 hover:text-red-600"
+                          onClick={() => handleDelete(base.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
         
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-500">
-            Pokazuje {filteredBases.length} z {BASES_MOCK_DATA.length} baz
+            Pokazuje {filteredBases.length} z {bases.length} baz
           </div>
           <div className="flex gap-1">
             <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>

@@ -17,6 +17,7 @@ import AdminBases from "./pages/admin/AdminBases";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminStatistics from "./pages/admin/AdminStatistics";
+import AdminSettings from "./pages/admin/AdminSettings";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/statistics" element={<AdminStatistics />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
