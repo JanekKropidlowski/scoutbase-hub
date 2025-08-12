@@ -1,0 +1,1 @@
+Proszę o implementację nazw tabel po polsku - będzie to bardziej intuicyjne dla polskiego CMS-a. Przykładowo: 'bazy_harcerskie', 'kategorie', 'regiony', 'typy_obiektow', 'wyposazenie' itp.
