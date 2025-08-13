@@ -4,57 +4,20 @@ import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
 import SearchBar from "@/components/ui/SearchBar";
 import FeaturedBase from "@/components/ui/FeaturedBase";
+import { useQuery } from "@tanstack/react-query";
+import { fetchFeaturedBases } from "@/services/bases";
 import MapExplorer from "@/components/ui/MapExplorer";
 import RecentSearches from "@/components/ui/RecentSearches";
 import TopBases from "@/components/ui/TopBases";
 import { ArrowRight, Users, Map, MapPin, Calendar, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// Mock data for featured bases
-const FEATURED_BASES = [
-  {
-    id: '1',
-    name: "Stanica Harcerska Biały Las",
-    location: "Warmińsko-mazurskie, Mazury",
-    image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    rating: 4.8,
-    price: "25 zł/os",
-    capacity: 120,
-    featured: true
-  },
-  {
-    id: '2',
-    name: "Baza Obozowa Leśny Zakątek",
-    location: "Pomorskie, Kaszuby",
-    image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    rating: 4.5,
-    price: "30 zł/os",
-    capacity: 80,
-    featured: false
-  },
-  {
-    id: '3',
-    name: "Centrum Szkoleniowe Harcerska Dolina",
-    location: "Dolnośląskie, Sudety",
-    image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    rating: 4.9,
-    price: "35 zł/os",
-    capacity: 150,
-    featured: true
-  },
-  {
-    id: '4',
-    name: "Ośrodek Szkoleniowy Nadwiślańskie Wzgórze",
-    location: "Mazowieckie, Okolice Warszawy",
-    image: "https://images.unsplash.com/photo-1499696010180-025ef6e1a8f9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    rating: 4.6,
-    price: "28 zł/os",
-    capacity: 100,
-    featured: false
-  }
-];
-
 const Index = () => {
+  const { data: featuredBases = [], isLoading } = useQuery({
+    queryKey: ["featured-bases"],
+    queryFn: () => fetchFeaturedBases(8),
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -94,8 +57,9 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURED_BASES.map((base) => (
-              <div key={base.id} className="animate-fade-up" style={{ animationDelay: `${0.1 + Number(base.id) * 0.1}s` }}>
+            {isLoading && <div className="text-sm text-muted-foreground">Ładowanie...</div>}
+            {!isLoading && featuredBases.map((base, idx) => (
+              <div key={base.id} className="animate-fade-up" style={{ animationDelay: `${0.1 + (idx + 1) * 0.1}s` }}>
                 <FeaturedBase {...base} />
               </div>
             ))}
