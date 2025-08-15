@@ -9,7 +9,167 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bases: {
+        Row: {
+          id: string
+          name: string
+          location: string
+          image: string | null
+          rating: number
+          price: string | null
+          capacity: number | null
+          description: string | null
+          featured: boolean
+          created_at: string
+          owner_id: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          amenities: string[] | null
+          coordinates: { lat: number; lng: number } | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          location: string
+          image?: string | null
+          rating?: number
+          price?: string | null
+          capacity?: number | null
+          description?: string | null
+          featured?: boolean
+          created_at?: string
+          owner_id?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          amenities?: string[] | null
+          coordinates?: { lat: number; lng: number } | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          location?: string
+          image?: string | null
+          rating?: number
+          price?: string | null
+          capacity?: number | null
+          description?: string | null
+          featured?: boolean
+          created_at?: string
+          owner_id?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          amenities?: string[] | null
+          coordinates?: { lat: number; lng: number } | null
+        }
+      }
+      reviews: {
+        Row: {
+          id: string
+          base_id: string
+          user_id: string
+          rating: number
+          comment: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          base_id: string
+          user_id: string
+          rating: number
+          comment?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          base_id?: string
+          user_id?: string
+          rating?: number
+          comment?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      reservations: {
+        Row: {
+          id: string
+          base_id: string
+          user_id: string
+          start_date: string
+          end_date: string
+          guests_count: number
+          status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+          total_price: number
+          created_at: string
+          updated_at: string
+          special_requests: string | null
+        }
+        Insert: {
+          id?: string
+          base_id: string
+          user_id: string
+          start_date: string
+          end_date: string
+          guests_count: number
+          status?: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+          total_price: number
+          created_at?: string
+          updated_at?: string
+          special_requests?: string | null
+        }
+        Update: {
+          id?: string
+          base_id?: string
+          user_id?: string
+          start_date?: string
+          end_date?: string
+          guests_count?: number
+          status?: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+          total_price?: number
+          created_at?: string
+          updated_at?: string
+          special_requests?: string | null
+        }
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          phone: string | null
+          organization: string | null
+          role: 'user' | 'admin' | 'moderator'
+          created_at: string
+          updated_at: string
+          preferences: Json | null
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          phone?: string | null
+          organization?: string | null
+          role?: 'user' | 'admin' | 'moderator'
+          created_at?: string
+          updated_at?: string
+          preferences?: Json | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          phone?: string | null
+          organization?: string | null
+          role?: 'user' | 'admin' | 'moderator'
+          created_at?: string
+          updated_at?: string
+          preferences?: Json | null
+        }
+      }
     }
     Views: {
       [_ in never]: never

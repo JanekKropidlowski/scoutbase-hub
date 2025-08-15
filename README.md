@@ -1,69 +1,243 @@
-# Welcome to your Lovable project
+# BazyHarcerskie.pl - System zarządzania bazami harcerskimi
 
-## Project info
+Aplikacja webowa do zarządzania bazami harcerskimi z zaawansowanym systemem CMS i autoryzacji.
 
-**URL**: https://lovable.dev/projects/3ca9c1bb-5cd2-49d4-97ea-acae69f66b52
+## 🚀 Funkcjonalności
 
-## How can I edit this code?
+### System autoryzacji
+- ✅ Logowanie i rejestracja użytkowników
+- ✅ Zarządzanie sesjami z Supabase Auth
+- ✅ Role użytkowników (user, moderator, admin)
+- ✅ Zabezpieczone trasy z ProtectedRoute
+- ✅ Resetowanie hasła
 
-There are several ways of editing your application.
+### System CMS
+- ✅ Zarządzanie bazami harcerskimi (CRUD)
+- ✅ Zarządzanie użytkownikami
+- ✅ System recenzji i ocen
+- ✅ System rezerwacji
+- ✅ Panel administracyjny z uprawnieniami
+- ✅ Wyszukiwanie i filtrowanie
 
-**Use Lovable**
+### Bazy harcerskie
+- ✅ Szczegółowe informacje o bazach
+- ✅ Zdjęcia i opisy
+- ✅ Udogodnienia i cennik
+- ✅ Lokalizacja i współrzędne
+- ✅ System ocen i recenzji
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3ca9c1bb-5cd2-49d4-97ea-acae69f66b52) and start prompting.
+## 🛠️ Technologie
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+- **Routing**: React Router DOM
+- **State Management**: React Query + Context API
+- **Forms**: React Hook Form + Zod validation
 
-**Use your preferred IDE**
+## 📋 Wymagania systemowe
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js 18+
+- npm, yarn lub bun
+- Konto Supabase
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Instalacja i uruchomienie
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### 1. Klonowanie repozytorium
+```bash
+git clone <repository-url>
+cd bazyharcerskie
 ```
 
-**Edit a file directly in GitHub**
+### 2. Instalacja zależności
+```bash
+npm install
+# lub
+yarn install
+# lub
+bun install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3. Konfiguracja Supabase
 
-**Use GitHub Codespaces**
+#### a) Utwórz projekt w Supabase
+- Przejdź do [supabase.com](https://supabase.com)
+- Utwórz nowy projekt
+- Skopiuj URL i klucz anonimowy
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+#### b) Skonfiguruj zmienne środowiskowe
+Utwórz plik `.env.local` w głównym katalogu:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## What technologies are used for this project?
+#### c) Uruchom migracje bazy danych
+```bash
+# Zaloguj się do Supabase CLI
+supabase login
 
-This project is built with .
+# Połącz z projektem
+supabase link --project-ref your_project_ref
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Uruchom migracje
+supabase db push
+```
 
-## How can I deploy this project?
+### 4. Uruchomienie aplikacji
+```bash
+npm run dev
+# lub
+yarn dev
+# lub
+bun dev
+```
 
-Simply open [Lovable](https://lovable.dev/projects/3ca9c1bb-5cd2-49d4-97ea-acae69f66b52) and click on Share -> Publish.
+Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
 
-## I want to use a custom domain - is that possible?
+## 🗄️ Struktura bazy danych
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### Tabela `bases`
+- Podstawowe informacje o bazach harcerskich
+- Zdjęcia, opisy, cennik
+- Udogodnienia i lokalizacja
+- System ocen i polecania
+
+### Tabela `user_profiles`
+- Profile użytkowników
+- Role i uprawnienia
+- Dane kontaktowe
+
+### Tabela `reviews`
+- Recenzje i oceny baz
+- Komentarze użytkowników
+- Powiązanie z bazami i użytkownikami
+
+### Tabela `reservations`
+- System rezerwacji
+- Daty, liczba gości, status
+- Specjalne wymagania
+
+## 🔐 System autoryzacji
+
+### Role użytkowników
+- **user**: Podstawowy użytkownik, może przeglądać bazy, dodawać recenzje
+- **moderator**: Może zarządzać bazami, recenzjami, rezerwacjami
+- **admin**: Pełne uprawnienia, zarządzanie użytkownikami
+
+### Zabezpieczone trasy
+- `/profile` - wymaga logowania
+- `/admin/*` - wymaga roli moderator/admin
+- `/admin/users` - wymaga roli admin
+
+## 📱 Funkcjonalności CMS
+
+### Zarządzanie bazami
+- Dodawanie nowych baz harcerskich
+- Edycja istniejących baz
+- Usuwanie baz
+- Wyszukiwanie i filtrowanie
+- Zarządzanie zdjęciami i opisami
+
+### Zarządzanie użytkownikami
+- Przeglądanie listy użytkowników
+- Zmiana ról i uprawnień
+- Zarządzanie profilami
+
+### System recenzji
+- Moderowanie recenzji użytkowników
+- Zarządzanie ocenami
+- Filtrowanie i wyszukiwanie
+
+### Statystyki i raporty
+- Liczba baz, użytkowników, recenzji
+- Wykresy odwiedzin
+- Analiza popularności baz
+
+## 🎨 Komponenty UI
+
+Aplikacja wykorzystuje bibliotekę shadcn/ui z komponentami:
+- Formularze z walidacją
+- Karty i layouty
+- Przyciski i inputy
+- Dialogi i modale
+- Tabele i listy
+- Badge'y i wskaźniki
+
+## 📁 Struktura projektu
+
+```
+src/
+├── components/          # Komponenty React
+│   ├── admin/          # Komponenty panelu admin
+│   ├── auth/           # Komponenty autoryzacji
+│   ├── layout/         # Komponenty layoutu
+│   ├── providers/      # Context providers
+│   └── ui/             # Komponenty UI (shadcn/ui)
+├── hooks/              # Custom hooks React
+├── integrations/       # Integracje zewnętrzne
+│   └── supabase/       # Konfiguracja Supabase
+├── pages/              # Strony aplikacji
+│   └── admin/          # Strony panelu admin
+├── services/           # Serwisy i API
+├── types/              # Definicje typów TypeScript
+└── App.tsx             # Główny komponent aplikacji
+```
+
+## 🔧 Skrypty npm
+
+```bash
+npm run dev          # Uruchomienie w trybie deweloperskim
+npm run build        # Budowanie aplikacji produkcyjnej
+npm run build:dev    # Budowanie w trybie deweloperskim
+npm run preview      # Podgląd zbudowanej aplikacji
+npm run lint         # Sprawdzenie kodu ESLint
+```
+
+## 🚀 Wdrażanie
+
+### Vercel
+```bash
+npm run build
+vercel --prod
+```
+
+### Netlify
+```bash
+npm run build
+netlify deploy --prod --dir=dist
+```
+
+### Supabase Edge Functions
+```bash
+supabase functions deploy
+```
+
+## 🤝 Współpraca
+
+1. Fork projektu
+2. Utwórz branch dla nowej funkcjonalności (`git checkout -b feature/amazing-feature`)
+3. Commit zmian (`git commit -m 'Add amazing feature'`)
+4. Push do brancha (`git push origin feature/amazing-feature`)
+5. Otwórz Pull Request
+
+## 📝 Licencja
+
+Ten projekt jest objęty licencją MIT. Zobacz plik `LICENSE` dla szczegółów.
+
+## 📞 Wsparcie
+
+W przypadku pytań lub problemów:
+- Otwórz issue w GitHub
+- Skontaktuj się z zespołem deweloperskim
+- Sprawdź dokumentację Supabase
+
+## 🔮 Planowane funkcjonalności
+
+- [ ] System powiadomień email
+- [ ] Integracja z Google Maps
+- [ ] System płatności online
+- [ ] Aplikacja mobilna
+- [ ] API REST dla zewnętrznych integracji
+- [ ] System raportów i analityki
+- [ ] Integracja z mediami społecznościowymi
