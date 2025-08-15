@@ -1,107 +1,153 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Footer from "@/components/layout/Footer";
+import { useAuth } from "@/hooks/useAuth";
+import { GuestRoute } from "@/components/auth/ProtectedRoute";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, user } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await signIn(email, password);
+      if (!error) {
+        // Redirect will be handled by the auth context
+        // The user will be redirected to the intended page or home
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-1 flex flex-col justify-center items-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <Link to="/" className="inline-flex flex-col items-center gap-2">
-              <div className="relative h-12 w-12 flex items-center justify-center bg-scout-500 rounded-full overflow-hidden">
-                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-10">
-                  <path d="M20 5L26 12L20 19L14 12L20 5Z" fill="white" />
-                  <path d="M20 21L26 28L20 35L14 28L20 21Z" fill="white" />
-                  <path d="M5 13L11 20L5 27L5 13Z" fill="white" />
-                  <path d="M35 13L29 20L35 27L35 13Z" fill="white" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                BazyHarcerskie.pl
-              </h2>
-            </Link>
-            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
-              Zaloguj się do swojego konta
-            </h2>
-            <p className="mt-2 text-gray-600">
-              Lub {" "}
-              <Link to="/register" className="font-medium text-scout-600 hover:text-scout-500">
-                zarejestruj się za darmo
+    <GuestRoute>
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1 flex flex-col justify-center items-center px-4 py-12 sm:px-6 lg:px-8">
+          <div className="w-full max-w-md space-y-8">
+            <div className="text-center">
+              <Link to="/" className="inline-flex flex-col items-center gap-2">
+                <div className="relative h-12 w-12 flex items-center justify-center bg-scout-500 rounded-full overflow-hidden">
+                  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-10">
+                    <path d="M20 5L26 12L20 19L14 12L20 5Z" fill="white" />
+                    <path d="M20 21L26 28L20 35L14 28L20 21Z" fill="white" />
+                    <path d="M5 13L11 20L5 27L5 13Z" fill="white" />
+                    <path d="M35 13L29 20L35 27L35 13Z" fill="white" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  BazyHarcerskie.pl
+                </h2>
               </Link>
-            </p>
-          </div>
-          
-          <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <form className="space-y-6" action="#" method="POST">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <div className="mt-1">
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    placeholder="twoj@email.pl"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="password">Hasło</Label>
-                <div className="mt-1 relative">
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="remember-me" />
-                  <Label htmlFor="remember-me" className="font-normal">
-                    Zapamiętaj mnie
-                  </Label>
+              <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+                Zaloguj się do swojego konta
+              </h2>
+              <p className="mt-2 text-gray-600">
+                Lub {" "}
+                <Link to="/register" className="font-medium text-scout-600 hover:text-scout-500">
+                  zarejestruj się za darmo
+                </Link>
+              </p>
+            </div>
+            
+            <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <div className="mt-1">
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder="twoj@email.pl"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
                 </div>
                 
-                <div className="text-sm">
-                  <Link to="/forgot-password" className="font-medium text-scout-600 hover:text-scout-500">
-                    Zapomniałem hasła
-                  </Link>
+                <div>
+                  <Label htmlFor="password">Hasło</Label>
+                  <div className="mt-1 relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <Button type="submit" className="w-full bg-scout-500 hover:bg-scout-600">
-                  Zaloguj się
-                </Button>
-              </div>
-            </form>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Checkbox 
+                      id="remember-me" 
+                      checked={rememberMe}
+                      onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                      disabled={isLoading}
+                    />
+                    <Label htmlFor="remember-me" className="font-normal">
+                      Zapamiętaj mnie
+                    </Label>
+                  </div>
+                  
+                  <div className="text-sm">
+                    <Link to="/forgot-password" className="font-medium text-scout-600 hover:text-scout-500">
+                      Zapomniałem hasła
+                    </Link>
+                  </div>
+                </div>
+                
+                <div>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-scout-500 hover:bg-scout-600"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Logowanie...
+                      </>
+                    ) : (
+                      "Zaloguj się"
+                    )}
+                  </Button>
+                </div>
+              </form>
             
             <div className="mt-6">
               <div className="relative">
@@ -142,6 +188,7 @@ const Login = () => {
       
       <Footer />
     </div>
+  </GuestRoute>
   );
 };
 

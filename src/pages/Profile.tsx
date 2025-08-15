@@ -1,265 +1,560 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import { User, Mail, Phone, MapPin, Heart, MessageSquare, Camera, Settings, Save, Loader2, Shield, Star } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Settings, LogOut, Edit, Bell, Lock, MapPin, Heart, MessageSquare, Calendar } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { user, profile, updateProfile } = useAuth();
+  const { toast } = useToast();
   
+  const [editedProfile, setEditedProfile] = useState({
+    full_name: "",
+    phone: "",
+    scout_group: "",
+    bio: "",
+  });
+
+  const [preferences, setPreferences] = useState({
+    email_notifications: true,
+    push_notifications: true,
+    marketing_emails: false,
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setEditedProfile({
+        full_name: profile.full_name || "",
+        phone: profile.phone || "",
+        scout_group: profile.scout_group || "",
+        bio: profile.bio || "",
+      });
+    }
+  }, [profile]);
+  
+  const favoritesBases = [
+    {
+      id: 1,
+      name: "Stanica Harcerska Biały Las",
+      location: "Warmińsko-mazurskie, Mazury",
+      image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4",
+      rating: 4.8,
+    },
+    {
+      id: 2,
+      name: "Centrum Szkoleniowe Harcerska Dolina",
+      location: "Dolnośląskie, Sudety",
+      image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d",
+      rating: 4.9,
+    },
+  ];
+  
+  const myReviews = [
+    {
+      id: 1,
+      baseName: "Stanica Harcerska Biały Las",
+      rating: 5,
+      content: "Fantastyczne miejsce na obóz! Czyste sanitariaty, doskonała lokalizacja nad jeziorem.",
+      date: "2024-08-15",
+    },
+    {
+      id: 2,
+      baseName: "Ośrodek Wypoczynkowy Puszcza",
+      rating: 4,
+      content: "Dobre miejsce, ale mogłoby być więcej miejsc na ognisko.",
+      date: "2024-07-22",
+    },
+  ];
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await updateProfile(editedProfile);
+      if (!error) {
+        setIsEditing(false);
+        toast({
+          title: "Profil zaktualizowany",
+          description: "Twoje dane zostały pomyślnie zapisane",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zaktualizować profilu",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const getInitials = (name: string | null) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return <Badge className="bg-red-100 text-red-800"><Shield className="h-3 w-3 mr-1" />Administrator</Badge>;
+      case 'moderator':
+        return <Badge className="bg-blue-100 text-blue-800"><Shield className="h-3 w-3 mr-1" />Moderator</Badge>;
+      default:
+        return <Badge variant="secondary">Użytkownik</Badge>;
+    }
+  };
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center pt-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-scout-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Ładowanie profilu...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      
-      <main className="flex-grow pt-16">
-        <div className="container px-4 py-8">
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-            <div className="bg-scout-500 h-32 relative">
-              <button className="absolute right-4 top-4 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors">
-                <Edit className="h-4 w-4" />
-              </button>
-            </div>
-            
-            <div className="px-6 pb-6 relative">
-              <div className="absolute -top-16 left-6 w-32 h-32 rounded-full border-4 border-white bg-scout-100 flex items-center justify-center text-scout-500">
-                <User className="h-16 w-16" />
-              </div>
-              
-              <div className="pt-20">
-                <h1 className="text-2xl font-bold">Jan Kowalski</h1>
-                <p className="text-gray-500 flex items-center mt-1">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  Warszawa, Mazowieckie
-                </p>
+      <div className="flex-grow bg-gray-50 pt-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Profile Header */}
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                <div className="relative">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={profile.avatar_url || ''} alt={profile.full_name || ''} />
+                    <AvatarFallback className="text-lg">{getInitials(profile.full_name)}</AvatarFallback>
+                  </Avatar>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </Button>
+                </div>
                 
-                <div className="mt-4 flex flex-wrap gap-4">
-                  <div className="flex items-center">
-                    <div className="bg-scout-50 p-2 rounded-full mr-3">
-                      <Calendar className="h-5 w-5 text-scout-500" />
-                    </div>
+                <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                      <p className="text-sm text-gray-500">Dołączył</p>
-                      <p className="font-medium">Marzec 2023</p>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h1 className="text-2xl font-bold text-gray-900">{profile.full_name || 'Użytkownik'}</h1>
+                        {getRoleBadge(profile.role)}
+                      </div>
+                      <p className="text-gray-600">{profile.scout_group || 'Brak przypisanej drużyny'}</p>
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Mail className="h-4 w-4" />
+                          {profile.email}
+                        </div>
+                        {profile.phone && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-4 w-4" />
+                            {profile.phone}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <div className="bg-scout-50 p-2 rounded-full mr-3">
-                      <Heart className="h-5 w-5 text-scout-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Ulubione</p>
-                      <p className="font-medium">2 bazy</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <div className="bg-scout-50 p-2 rounded-full mr-3">
-                      <MessageSquare className="h-5 w-5 text-scout-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Wiadomości</p>
-                      <p className="font-medium">3 aktywne</p>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant={isEditing ? "default" : "outline"}
+                        onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : isEditing ? (
+                          <Save className="h-4 w-4 mr-2" />
+                        ) : (
+                          <Settings className="h-4 w-4 mr-2" />
+                        )}
+                        {isSaving ? "Zapisywanie..." : isEditing ? "Zapisz" : "Edytuj profil"}
+                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
           
-          <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="w-full bg-white rounded-xl mb-6 p-1 border">
-              <TabsTrigger 
-                value="profile" 
-                className="flex-1 data-[state=active]:bg-scout-50 data-[state=active]:text-scout-700 rounded-lg"
-                onClick={() => setActiveTab("profile")}
-              >
-                Profil
-              </TabsTrigger>
-              <TabsTrigger 
-                value="settings" 
-                className="flex-1 data-[state=active]:bg-scout-50 data-[state=active]:text-scout-700 rounded-lg"
-                onClick={() => setActiveTab("settings")}
-              >
-                Ustawienia
-              </TabsTrigger>
-              <TabsTrigger 
-                value="history" 
-                className="flex-1 data-[state=active]:bg-scout-50 data-[state=active]:text-scout-700 rounded-lg"
-                onClick={() => setActiveTab("history")}
-              >
-                Historia
-              </TabsTrigger>
+          {/* Profile Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Przegląd</TabsTrigger>
+              <TabsTrigger value="favorites">Ulubione</TabsTrigger>
+              <TabsTrigger value="reviews">Moje recenzje</TabsTrigger>
+              <TabsTrigger value="settings">Ustawienia</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="profile" className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-bold mb-4">Informacje o użytkowniku</h2>
+            <TabsContent value="overview" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Informacje osobiste</CardTitle>
+                  <CardDescription>Podstawowe informacje o Twoim profilu</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {isEditing ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Imię i nazwisko</Label>
+                        <Input
+                          id="name"
+                          value={editedProfile.full_name}
+                          onChange={(e) => setEditedProfile({...editedProfile, full_name: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={profile.email}
+                          disabled
+                          className="bg-gray-50"
+                        />
+                        <p className="text-xs text-gray-500">Adres email nie może być zmieniony</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefon</Label>
+                        <Input
+                          id="phone"
+                          value={editedProfile.phone}
+                          onChange={(e) => setEditedProfile({...editedProfile, phone: e.target.value})}
+                          placeholder="+48 123 456 789"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="scoutGroup">Drużyna harcerska</Label>
+                        <Input
+                          id="scoutGroup"
+                          value={editedProfile.scout_group}
+                          onChange={(e) => setEditedProfile({...editedProfile, scout_group: e.target.value})}
+                          placeholder="1. Drużyna Harcerska..."
+                        />
+                      </div>
+                      <div className="md:col-span-2 space-y-2">
+                        <Label htmlFor="bio">O mnie</Label>
+                        <Textarea
+                          id="bio"
+                          value={editedProfile.bio}
+                          onChange={(e) => setEditedProfile({...editedProfile, bio: e.target.value})}
+                          placeholder="Opowiedz coś o sobie..."
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Imię i nazwisko</Label>
+                          <p className="mt-1">{profile.full_name || 'Nie podano'}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Email</Label>
+                          <p className="mt-1">{profile.email}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Telefon</Label>
+                          <p className="mt-1">{profile.phone || 'Nie podano'}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Status weryfikacji</Label>
+                          <div className="mt-1">
+                            {profile.is_verified ? (
+                              <Badge className="bg-green-100 text-green-800">Zweryfikowany</Badge>
+                            ) : (
+                              <Badge variant="outline">Niezweryfikowany</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Drużyna harcerska</Label>
+                          <p className="mt-1">{profile.scout_group || 'Nie podano'}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Rola</Label>
+                          <div className="mt-1">
+                            {getRoleBadge(profile.role)}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Członek od</Label>
+                          <p className="mt-1">{new Date(profile.created_at).toLocaleDateString('pl-PL')}</p>
+                        </div>
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label className="text-sm font-medium text-gray-500">O mnie</Label>
+                        <p className="mt-1 text-gray-700">{profile.bio || 'Brak opisu'}</p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
               
-              <div className="space-y-6">
-                <div>
-                  <label className="text-sm font-medium text-gray-500 block mb-1">Imię i nazwisko</label>
-                  <div className="font-medium">Jan Kowalski</div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 bg-scout-100 rounded-lg">
+                        <Heart className="h-6 w-6 text-scout-600" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">12</p>
+                        <p className="text-sm text-gray-600">Ulubione bazy</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                 
-                <div>
-                  <label className="text-sm font-medium text-gray-500 block mb-1">Email</label>
-                  <div className="font-medium">jan.kowalski@example.com</div>
-                </div>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 bg-scout-100 rounded-lg">
+                        <MessageSquare className="h-6 w-6 text-scout-600" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">8</p>
+                        <p className="text-sm text-gray-600">Napisane recenzje</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                 
-                <div>
-                  <label className="text-sm font-medium text-gray-500 block mb-1">Telefon</label>
-                  <div className="font-medium">+48 123 456 789</div>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-500 block mb-1">Organizacja harcerska</label>
-                  <div className="font-medium">ZHP - Chorągiew Stołeczna</div>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-500 block mb-1">Funkcja</label>
-                  <div className="font-medium">Drużynowy</div>
-                </div>
-                
-                <div className="pt-4">
-                  <button className="bg-scout-50 text-scout-700 px-4 py-2 rounded-lg hover:bg-scout-100 transition-colors font-medium flex items-center">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edytuj profil
-                  </button>
-                </div>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 bg-scout-100 rounded-lg">
+                        <User className="h-6 w-6 text-scout-600" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">{new Date(profile.created_at).getFullYear()}</p>
+                        <p className="text-sm text-gray-600">Członek od</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
             
-            <TabsContent value="settings" className="bg-white rounded-xl shadow-sm divide-y">
-              <div className="p-6">
-                <h2 className="text-xl font-bold mb-4">Ustawienia konta</h2>
-                
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">Powiadomienia email</h3>
-                      <p className="text-sm text-gray-500">Otrzymuj powiadomienia o nowych wiadomościach i aktualnościach</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-scout-500"></div>
-                    </label>
+            <TabsContent value="favorites" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ulubione bazy</CardTitle>
+                  <CardDescription>Bazy, które dodałeś do ulubionych</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {favoritesBases.map((base) => (
+                      <div key={base.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <img
+                          src={base.image}
+                          alt={base.name}
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="p-4">
+                          <h3 className="font-medium text-lg">{base.name}</h3>
+                          <p className="text-gray-600 text-sm flex items-center mt-1">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            {base.location}
+                          </p>
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < Math.floor(base.rating)
+                                      ? "text-yellow-400 fill-current"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                              <span className="ml-1 text-sm text-gray-600">
+                                {base.rating}
+                              </span>
+                            </div>
+                            <Button size="sm" variant="outline">
+                              Zobacz szczegóły
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">Powiadomienia push</h3>
-                      <p className="text-sm text-gray-500">Otrzymuj powiadomienia bezpośrednio w przeglądarce</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-scout-500"></div>
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">Newsletter</h3>
-                      <p className="text-sm text-gray-500">Otrzymuj informacje o nowych bazach i promocjach</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-scout-500"></div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <h3 className="font-bold mb-4">Bezpieczeństwo</h3>
-                
-                <div className="space-y-4">
-                  <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center">
-                      <Lock className="h-5 w-5 text-gray-500 mr-3" />
-                      <span>Zmień hasło</span>
-                    </div>
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                  
-                  <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center">
-                      <Bell className="h-5 w-5 text-gray-500 mr-3" />
-                      <span>Zarządzaj powiadomieniami</span>
-                    </div>
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                  
-                  <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center">
-                      <Settings className="h-5 w-5 text-gray-500 mr-3" />
-                      <span>Preferencje prywatności</span>
-                    </div>
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <button className="flex items-center text-red-500 font-medium">
-                  <LogOut className="h-5 w-5 mr-2" />
-                  Wyloguj się
-                </button>
-              </div>
+                </CardContent>
+              </Card>
             </TabsContent>
             
-            <TabsContent value="history" className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-bold mb-4">Historia aktywności</h2>
-              
-              <div className="space-y-6">
-                <div className="border-l-2 border-scout-500 pl-4 pb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Wyszukiwanie bazy</h3>
-                    <span className="text-sm text-gray-500">2 godz. temu</span>
+            <TabsContent value="reviews" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Moje recenzje</CardTitle>
+                  <CardDescription>Recenzje, które napisałeś o bazach harcerskich</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {myReviews.map((review) => (
+                      <div key={review.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-medium">{review.baseName}</h3>
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < review.rating
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-gray-700 mb-3">{review.content}</p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(review.date).toLocaleDateString('pl-PL')}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-gray-600">Wyszukiwanie: <span className="font-medium">Mazury, max 80 osób</span></p>
-                </div>
-                
-                <div className="border-l-2 border-scout-500 pl-4 pb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Wysłano wiadomość</h3>
-                    <span className="text-sm text-gray-500">Wczoraj, 15:30</span>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="settings" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ustawienia konta</CardTitle>
+                  <CardDescription>Zarządzaj ustawieniami swojego konta i powiadomień</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium">Powiadomienia email</h4>
+                        <p className="text-sm text-gray-600">Otrzymuj powiadomienia o nowych bazach i aktualizacjach</p>
+                      </div>
+                      <Switch
+                        checked={preferences.email_notifications}
+                        onCheckedChange={(checked) => 
+                          setPreferences({...preferences, email_notifications: checked})
+                        }
+                      />
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium">Powiadomienia push</h4>
+                        <p className="text-sm text-gray-600">Otrzymuj natychmiastowe powiadomienia w przeglądarce</p>
+                      </div>
+                      <Switch
+                        checked={preferences.push_notifications}
+                        onCheckedChange={(checked) => 
+                          setPreferences({...preferences, push_notifications: checked})
+                        }
+                      />
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium">Wiadomości marketingowe</h4>
+                        <p className="text-sm text-gray-600">Otrzymuj informacje o promocjach i nowościach</p>
+                      </div>
+                      <Switch
+                        checked={preferences.marketing_emails}
+                        onCheckedChange={(checked) => 
+                          setPreferences({...preferences, marketing_emails: checked})
+                        }
+                      />
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="language">Język</Label>
+                      <Select defaultValue="pl">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz język" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pl">Polski</SelectItem>
+                          <SelectItem value="en">English</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="theme">Motyw</Label>
+                      <Select defaultValue="light">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz motyw" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="light">Jasny</SelectItem>
+                          <SelectItem value="dark">Ciemny</SelectItem>
+                          <SelectItem value="system">Systemowy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <p className="text-gray-600">Do: <span className="font-medium">Stanica Harcerska Biały Las</span></p>
-                </div>
-                
-                <div className="border-l-2 border-scout-500 pl-4 pb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Dodano do ulubionych</h3>
-                    <span className="text-sm text-gray-500">23.03.2023</span>
+                  
+                  <div className="flex justify-end">
+                    <Button className="bg-scout-500 hover:bg-scout-600">
+                      Zapisz ustawienia
+                    </Button>
                   </div>
-                  <p className="text-gray-600">Baza: <span className="font-medium">Centrum Szkoleniowe Harcerska Dolina</span></p>
-                </div>
-                
-                <div className="border-l-2 border-scout-500 pl-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Utworzono konto</h3>
-                    <span className="text-sm text-gray-500">12.03.2023</span>
+
+                  <Separator />
+                  
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-red-600">Strefa niebezpieczna</h4>
+                    <div className="space-y-2">
+                      <Button variant="outline" className="w-full">
+                        Zmień hasło
+                      </Button>
+                      <Button variant="destructive" className="w-full">
+                        Usuń konto
+                      </Button>
+                    </div>
                   </div>
-                  <p className="text-gray-600">Witamy w BazyHarcerskie.pl!</p>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
-      </main>
-      
+      </div>
       <Footer />
-      <MobileNav />
     </div>
   );
 };
