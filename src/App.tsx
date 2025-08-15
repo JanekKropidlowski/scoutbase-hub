@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Map from "./pages/Map";
@@ -19,8 +19,17 @@ import AdminReviews from "./pages/admin/AdminReviews";
 import AdminStatistics from "./pages/admin/AdminStatistics";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { useAuth } from "./lib/auth";
 
 const queryClient = new QueryClient();
+
+const RequireAdmin = ({ children }: { children: JSX.Element }) => {
+  const { user, isAdmin, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+  return children;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -40,11 +49,11 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           
           {/* Admin CMS Routes */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/bases" element={<AdminBases />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/reviews" element={<AdminReviews />} />
-          <Route path="/admin/statistics" element={<AdminStatistics />} />
+          <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+          <Route path="/admin/bases" element={<RequireAdmin><AdminBases /></RequireAdmin>} />
+          <Route path="/admin/users" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
+          <Route path="/admin/reviews" element={<RequireAdmin><AdminReviews /></RequireAdmin>} />
+          <Route path="/admin/statistics" element={<RequireAdmin><AdminStatistics /></RequireAdmin>} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
