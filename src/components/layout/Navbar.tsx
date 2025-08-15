@@ -1,12 +1,23 @@
 
 import { Link } from "react-router-dom";
-import { SearchIcon, Menu, User, MapPin, Heart, MessageSquare, LayoutDashboard } from "lucide-react";
+import { SearchIcon, Menu, User, MapPin, Heart, MessageSquare, LayoutDashboard, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(true); // This would normally be determined by auth state
+  const { user, signOut } = useAuth();
+  const isAdmin = user?.user_metadata?.role === 'admin';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +27,14 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const getUserInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      const names = user.user_metadata.full_name.split(' ');
+      return names.map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return user?.email?.slice(0, 2).toUpperCase() || 'U';
+  };
 
   return (
     <header 
@@ -46,9 +65,11 @@ const Navbar = () => {
             <Link to="/search" className="text-foreground/80 hover:text-scout-500 transition-colors">
               Szukaj bazy
             </Link>
-            <Link to="/favorites" className="text-foreground/80 hover:text-scout-500 transition-colors">
-              Ulubione
-            </Link>
+            {user && (
+              <Link to="/favorites" className="text-foreground/80 hover:text-scout-500 transition-colors">
+                Ulubione
+              </Link>
+            )}
             <Link to="/posts" className="text-foreground/80 hover:text-scout-500 transition-colors">
               Ogłoszenia
             </Link>
@@ -60,12 +81,70 @@ const Navbar = () => {
             )}
           </nav>
           <div className="flex items-center gap-2">
-            <Link to="/login" className="px-4 py-2 rounded-full hover:bg-scout-50 transition-colors">
-              Zaloguj
-            </Link>
-            <Link to="/register" className="bg-scout-500 text-white px-4 py-2 rounded-full hover:bg-scout-600 transition-colors">
-              Rejestracja
-            </Link>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-scout-50 transition-colors">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.user_metadata?.avatar_url} />
+                      <AvatarFallback className="bg-scout-500 text-white text-xs">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium">
+                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profil</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/messages" className="flex items-center">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      <span>Wiadomości</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/favorites" className="flex items-center">
+                      <Heart className="mr-2 h-4 w-4" />
+                      <span>Ulubione</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="flex items-center">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          <span>Panel administracyjny</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Wyloguj</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/login" className="px-4 py-2 rounded-full hover:bg-scout-50 transition-colors">
+                  Zaloguj
+                </Link>
+                <Link to="/register" className="bg-scout-500 text-white px-4 py-2 rounded-full hover:bg-scout-600 transition-colors">
+                  Rejestracja
+                </Link>
+              </>
+            )}
           </div>
         </div>
         
@@ -85,33 +164,56 @@ const Navbar = () => {
                 <SearchIcon className="h-5 w-5 text-scout-500" />
                 <span className="font-medium">Szukaj bazy</span>
               </Link>
-              <Link to="/favorites" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
-                <Heart className="h-5 w-5 text-scout-500" />
-                <span className="font-medium">Ulubione</span>
-              </Link>
-              <Link to="/messages" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
-                <MessageSquare className="h-5 w-5 text-scout-500" />
-                <span className="font-medium">Wiadomości</span>
-              </Link>
-              <Link to="/profile" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
-                <User className="h-5 w-5 text-scout-500" />
-                <span className="font-medium">Profil</span>
-              </Link>
+              {user && (
+                <>
+                  <Link to="/favorites" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                    <Heart className="h-5 w-5 text-scout-500" />
+                    <span className="font-medium">Ulubione</span>
+                  </Link>
+                  <Link to="/messages" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                    <MessageSquare className="h-5 w-5 text-scout-500" />
+                    <span className="font-medium">Wiadomości</span>
+                  </Link>
+                  <Link to="/profile" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
+                    <User className="h-5 w-5 text-scout-500" />
+                    <span className="font-medium">Profil</span>
+                  </Link>
+                </>
+              )}
               {isAdmin && (
                 <Link to="/admin" className="py-3 px-3 rounded-xl hover:bg-scout-50 flex items-center gap-3">
                   <LayoutDashboard className="h-5 w-5 text-scout-500" />
-                  <span className="font-medium">Panel CMS</span>
+                  <span className="font-medium">Panel administracyjny</span>
                 </Link>
               )}
+              
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                {user ? (
+                  <>
+                    <div className="px-3 py-2 mb-2">
+                      <p className="text-xs text-gray-500">Zalogowany jako:</p>
+                      <p className="font-medium text-sm">{user.email}</p>
+                    </div>
+                    <button 
+                      onClick={signOut}
+                      className="w-full py-3 px-3 rounded-xl hover:bg-red-50 flex items-center gap-3 text-red-600"
+                    >
+                      <LogOut className="h-5 w-5" />
+                      <span className="font-medium">Wyloguj</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" className="block w-full py-3 px-3 rounded-xl hover:bg-scout-50 text-center font-medium">
+                      Zaloguj się
+                    </Link>
+                    <Link to="/register" className="block w-full mt-2 bg-scout-500 text-white py-3 px-3 rounded-xl hover:bg-scout-600 text-center font-medium">
+                      Zarejestruj się
+                    </Link>
+                  </>
+                )}
+              </div>
             </nav>
-            <div className="flex flex-col gap-3 mt-6 px-2">
-              <Link to="/login" className="w-full text-center py-2.5 border border-scout-500 text-scout-500 rounded-xl font-medium">
-                Zaloguj
-              </Link>
-              <Link to="/register" className="w-full text-center bg-scout-500 text-white py-2.5 rounded-xl font-medium">
-                Rejestracja
-              </Link>
-            </div>
           </SheetContent>
         </Sheet>
       </div>

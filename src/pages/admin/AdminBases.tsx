@@ -3,121 +3,80 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Search, Edit, Trash2, Eye, ArrowUpDown } from "lucide-react";
+import { PlusCircle, Search, Edit, Trash2, Eye, ArrowUpDown, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import { useState } from "react";
-
-const BASES_MOCK_DATA = [
-  {
-    id: "1",
-    name: "Stanica Harcerska Biały Las",
-    location: "Mazury, woj. warmińsko-mazurskie",
-    capacity: 120,
-    owner: "Hufiec ZHP Warszawa-Mokotów",
-    status: "active",
-    lastUpdated: "2023-05-15"
-  },
-  {
-    id: "2",
-    name: "Baza Harcerska Leśne Ustronie", 
-    location: "Bieszczady, woj. podkarpackie",
-    capacity: 90,
-    owner: "Chorągiew Podkarpacka ZHP",
-    status: "active",
-    lastUpdated: "2023-04-22"
-  },
-  {
-    id: "3",
-    name: "Stanica Wodna Bryza",
-    location: "Pomorze, woj. pomorskie",
-    capacity: 75,
-    owner: "Hufiec ZHP Gdańsk-Wrzeszcz",
-    status: "pending",
-    lastUpdated: "2023-06-03"
-  },
-  {
-    id: "4",
-    name: "Baza Obozowa Watra",
-    location: "Tatry, woj. małopolskie", 
-    capacity: 150,
-    owner: "Chorągiew Krakowska ZHP",
-    status: "active",
-    lastUpdated: "2023-03-17"
-  },
-  {
-    id: "5",
-    name: "Ośrodek Harcerski Perkoz",
-    location: "Mazury, woj. warmińsko-mazurskie",
-    capacity: 200,
-    owner: "Główna Kwatera ZHP",
-    status: "active",
-    lastUpdated: "2023-05-30"
-  },
-  {
-    id: "6",
-    name: "Stanica Harcerska Zielona Polana",
-    location: "Bory Tucholskie, woj. pomorskie",
-    capacity: 85,
-    owner: "Hufiec ZHP Toruń",
-    status: "inactive",
-    lastUpdated: "2023-02-11"
-  },
-  {
-    id: "7",
-    name: "Baza Obozowa Dolina Wilka",
-    location: "Sudety, woj. dolnośląskie",
-    capacity: 100,
-    owner: "Chorągiew Dolnośląska ZHP",
-    status: "active",
-    lastUpdated: "2023-04-08"
-  }
-];
+import { useBases, useDeleteBase, useUpdateBaseStatus } from "@/hooks/useBases";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 const AdminBases = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedBase, setSelectedBase] = useState<any>(null);
   
-  const filteredBases = BASES_MOCK_DATA.filter(base => {
-    const matchesSearch = base.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         base.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         base.owner.toLowerCase().includes(searchQuery.toLowerCase());
-                         
-    const matchesStatus = statusFilter === "all" || base.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
+  const { data: bases, isLoading } = useBases({ 
+    status: statusFilter,
+    search: searchQuery 
   });
   
+  const deleteBase = useDeleteBase();
+  const updateStatus = useUpdateBaseStatus();
+  
   const statusOptions = [
-    { value: "all", label: "Wszystkie statusy" },
-    { value: "active", label: "Aktywna" },
+    { value: undefined, label: "Wszystkie statusy" },
+    { value: "draft", label: "Szkic" },
     { value: "pending", label: "Oczekująca" },
-    { value: "inactive", label: "Nieaktywna" }
+    { value: "approved", label: "Zatwierdzona" },
+    { value: "rejected", label: "Odrzucona" }
   ];
   
-  const getStatusBadgeClass = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
+      case "approved":
+        return <Badge className="bg-green-100 text-green-800">Zatwierdzona</Badge>;
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
+        return <Badge className="bg-yellow-100 text-yellow-800">Oczekująca</Badge>;
+      case "rejected":
+        return <Badge className="bg-red-100 text-red-800">Odrzucona</Badge>;
+      case "draft":
+        return <Badge className="bg-gray-100 text-gray-800">Szkic</Badge>;
       default:
-        return "bg-gray-100 text-gray-800";
+        return <Badge>{status}</Badge>;
     }
   };
-  
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Aktywna";
-      case "pending":
-        return "Oczekująca";
-      case "inactive":
-        return "Nieaktywna";
-      default:
-        return status;
+
+  const handleDelete = async () => {
+    if (selectedBase) {
+      await deleteBase.mutateAsync(selectedBase.id);
+      setDeleteDialogOpen(false);
+      setSelectedBase(null);
     }
+  };
+
+  const handleStatusChange = async (baseId: string, newStatus: 'approved' | 'pending' | 'rejected') => {
+    await updateStatus.mutateAsync({ id: baseId, status: newStatus });
   };
 
   return (
@@ -128,7 +87,10 @@ const AdminBases = () => {
             <h1 className="text-2xl font-bold tracking-tight">Bazy harcerskie</h1>
             <p className="text-muted-foreground">Zarządzaj bazami harcerskimi w systemie</p>
           </div>
-          <Button className="bg-scout-500 hover:bg-scout-600">
+          <Button 
+            className="bg-scout-500 hover:bg-scout-600"
+            onClick={() => navigate('/admin/bases/new')}
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             Dodaj nową bazę
           </Button>
@@ -147,86 +109,151 @@ const AdminBases = () => {
           
           <select
             className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            value={statusFilter || ''}
+            onChange={(e) => setStatusFilter(e.target.value || undefined)}
           >
             {statusOptions.map(option => (
-              <option key={option.value} value={option.value}>
+              <option key={option.value || 'all'} value={option.value || ''}>
                 {option.label}
               </option>
             ))}
           </select>
         </div>
         
-        <div className="border rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">ID</TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Nazwa bazy
-                    <ArrowUpDown className="h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>Lokalizacja</TableHead>
-                <TableHead className="text-center">Pojemność</TableHead>
-                <TableHead>Właściciel</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Ostatnia aktualizacja</TableHead>
-                <TableHead className="text-right">Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredBases.map((base) => (
-                <TableRow key={base.id}>
-                  <TableCell className="font-medium">#{base.id}</TableCell>
-                  <TableCell>{base.name}</TableCell>
-                  <TableCell>{base.location}</TableCell>
-                  <TableCell className="text-center">{base.capacity}</TableCell>
-                  <TableCell>{base.owner}</TableCell>
-                  <TableCell>
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeClass(base.status)}`}>
-                      {getStatusLabel(base.status)}
-                    </span>
-                  </TableCell>
-                  <TableCell>{base.lastUpdated}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="icon" className="h-8 w-8">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-500">
-            Pokazuje {filteredBases.length} z {BASES_MOCK_DATA.length} baz
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-scout-500" />
           </div>
-          <div className="flex gap-1">
-            <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
-              Poprzednia
-            </Button>
-            <Button variant="outline" size="sm">
-              {currentPage}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage + 1)}>
-              Następna
-            </Button>
-          </div>
-        </div>
+        ) : (
+          <>
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">ID</TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-1">
+                        Nazwa bazy
+                        <ArrowUpDown className="h-4 w-4" />
+                      </div>
+                    </TableHead>
+                    <TableHead>Lokalizacja</TableHead>
+                    <TableHead className="text-center">Pojemność</TableHead>
+                    <TableHead>Właściciel</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Ostatnia aktualizacja</TableHead>
+                    <TableHead className="text-right">Akcje</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bases && bases.length > 0 ? (
+                    bases.map((base: any) => (
+                      <TableRow key={base.id}>
+                        <TableCell className="font-medium">#{base.id.slice(0, 8)}</TableCell>
+                        <TableCell className="font-medium">{base.name}</TableCell>
+                        <TableCell>{base.city}, {base.voivodeship}</TableCell>
+                        <TableCell className="text-center">{base.capacity || '-'}</TableCell>
+                        <TableCell>
+                          {base.owner?.full_name || 'Nieznany'}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(base.status)}
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(base.updated_at), 'dd MMM yyyy', { locale: pl })}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                Akcje
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Akcje</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => navigate(`/base/${base.id}`)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                Podgląd
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => navigate(`/admin/bases/${base.id}/edit`)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edytuj
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {base.status !== 'approved' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(base.id, 'approved')}>
+                                  <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
+                                  Zatwierdź
+                                </DropdownMenuItem>
+                              )}
+                              {base.status !== 'pending' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(base.id, 'pending')}>
+                                  <Clock className="mr-2 h-4 w-4 text-yellow-600" />
+                                  Ustaw jako oczekującą
+                                </DropdownMenuItem>
+                              )}
+                              {base.status !== 'rejected' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(base.id, 'rejected')}>
+                                  <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                                  Odrzuć
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => {
+                                  setSelectedBase(base);
+                                  setDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Usuń
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                        Nie znaleziono żadnych baz
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-500">
+                Pokazuje {bases?.length || 0} baz
+              </div>
+            </div>
+          </>
+        )}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Czy na pewno chcesz usunąć tę bazę?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ta akcja jest nieodwracalna. Baza "{selectedBase?.name}" zostanie trwale usunięta z systemu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anuluj</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };
