@@ -9,7 +9,322 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          action: string
+          table_name: string
+          record_id: string | null
+          old_values: Json | null
+          new_values: Json | null
+          ip_address: string | null
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          action: string
+          table_name: string
+          record_id?: string | null
+          old_values?: Json | null
+          new_values?: Json | null
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          action?: string
+          table_name?: string
+          record_id?: string | null
+          old_values?: Json | null
+          new_values?: Json | null
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+      }
+      bases: {
+        Row: {
+          id: string
+          name: string
+          location: string
+          image: string | null
+          rating: number
+          price: string | null
+          capacity: number | null
+          description: string | null
+          featured: boolean
+          amenities: string[] | null
+          contact_email: string | null
+          contact_phone: string | null
+          website: string | null
+          status: string
+          owner_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          location: string
+          image?: string | null
+          rating?: number
+          price?: string | null
+          capacity?: number | null
+          description?: string | null
+          featured?: boolean
+          amenities?: string[] | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          website?: string | null
+          status?: string
+          owner_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          location?: string
+          image?: string | null
+          rating?: number
+          price?: string | null
+          capacity?: number | null
+          description?: string | null
+          featured?: boolean
+          amenities?: string[] | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          website?: string | null
+          status?: string
+          owner_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      cms_pages: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          content: Json
+          meta_title: string | null
+          meta_description: string | null
+          status: string
+          author_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          content: Json
+          meta_title?: string | null
+          meta_description?: string | null
+          status?: string
+          author_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          content?: Json
+          meta_title?: string | null
+          meta_description?: string | null
+          status?: string
+          author_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      media: {
+        Row: {
+          id: string
+          filename: string
+          original_name: string
+          mime_type: string
+          size_bytes: number
+          url: string
+          alt_text: string | null
+          uploaded_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          filename: string
+          original_name: string
+          mime_type: string
+          size_bytes: number
+          url: string
+          alt_text?: string | null
+          uploaded_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          filename?: string
+          original_name?: string
+          mime_type?: string
+          size_bytes?: number
+          url?: string
+          alt_text?: string | null
+          uploaded_by?: string
+          created_at?: string
+        }
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          read: boolean
+          action_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          message: string
+          type?: string
+          read?: boolean
+          action_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          message?: string
+          type?: string
+          read?: boolean
+          action_url?: string | null
+          created_at?: string
+        }
+      }
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          role: string
+          scout_group: string | null
+          phone: string | null
+          bio: string | null
+          is_verified: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          role?: string
+          scout_group?: string | null
+          phone?: string | null
+          bio?: string | null
+          is_verified?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          role?: string
+          scout_group?: string | null
+          phone?: string | null
+          bio?: string | null
+          is_verified?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      reviews: {
+        Row: {
+          id: string
+          base_id: string
+          user_id: string
+          rating: number
+          title: string | null
+          content: string
+          images: string[] | null
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          base_id: string
+          user_id: string
+          rating: number
+          title?: string | null
+          content: string
+          images?: string[] | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          base_id?: string
+          user_id?: string
+          rating?: number
+          title?: string | null
+          content?: string
+          images?: string[] | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          theme: string
+          language: string
+          email_notifications: boolean
+          push_notifications: boolean
+          marketing_emails: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          theme?: string
+          language?: string
+          email_notifications?: boolean
+          push_notifications?: boolean
+          marketing_emails?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          theme?: string
+          language?: string
+          email_notifications?: boolean
+          push_notifications?: boolean
+          marketing_emails?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -25,6 +340,16 @@ export type Database = {
     }
   }
 }
+
+// Type helpers for easier use
+export type Profile = Database['public']['Tables']['profiles']['Row']
+export type Base = Database['public']['Tables']['bases']['Row']
+export type Review = Database['public']['Tables']['reviews']['Row']
+export type CmsPage = Database['public']['Tables']['cms_pages']['Row']
+export type Media = Database['public']['Tables']['media']['Row']
+export type Notification = Database['public']['Tables']['notifications']['Row']
+export type UserPreferences = Database['public']['Tables']['user_preferences']['Row']
+export type AuditLog = Database['public']['Tables']['audit_logs']['Row']
 
 type PublicSchema = Database[Extract<keyof Database, "public">]
 

@@ -1,6 +1,6 @@
 
 import { ReactNode, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Users, 
@@ -10,8 +10,23 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  FileText,
+  Image,
+  Bell,
+  User
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
 import Footer from "@/components/layout/Footer";
 
 interface AdminLayoutProps {
@@ -21,9 +36,21 @@ interface AdminLayoutProps {
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
   
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const getInitials = (name: string | null) => {
+    if (!name) return 'AD';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
   
   const navItems = [
@@ -46,6 +73,16 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       name: "Recenzje", 
       icon: <MessageSquare className="h-5 w-5" />, 
       path: "/admin/reviews" 
+    },
+    { 
+      name: "Strony CMS", 
+      icon: <FileText className="h-5 w-5" />, 
+      path: "/admin/pages" 
+    },
+    { 
+      name: "Media", 
+      icon: <Image className="h-5 w-5" />, 
+      path: "/admin/media" 
     },
     { 
       name: "Statystyki", 
@@ -92,9 +129,55 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <Link to="/" className="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-1">
               <span className="text-sm">Wróć do strony</span>
             </Link>
-            <div className="h-8 w-8 rounded-full bg-scout-100 flex items-center justify-center text-scout-700 font-medium">
-              A
-            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={profile?.avatar_url || ''} alt={profile?.full_name || ''} />
+                    <AvatarFallback className="bg-scout-100 text-scout-700">
+                      {getInitials(profile?.full_name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {profile?.full_name || 'Administrator'}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {profile?.email}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground capitalize">
+                      Rola: {profile?.role}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="w-full cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profil</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/settings" className="w-full cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Ustawienia</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="cursor-pointer text-red-600 focus:text-red-600" 
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Wyloguj się</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
