@@ -1,231 +1,291 @@
 
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Search, Edit, Trash2, Eye, ArrowUpDown } from "lucide-react";
-import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { Plus, Search, Edit, Trash2, Eye, Star } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
+import cmsService from "@/services/cms";
+import BaseForm from "@/components/admin/BaseForm";
 
-const BASES_MOCK_DATA = [
-  {
-    id: "1",
-    name: "Stanica Harcerska Biały Las",
-    location: "Mazury, woj. warmińsko-mazurskie",
-    capacity: 120,
-    owner: "Hufiec ZHP Warszawa-Mokotów",
-    status: "active",
-    lastUpdated: "2023-05-15"
-  },
-  {
-    id: "2",
-    name: "Baza Harcerska Leśne Ustronie", 
-    location: "Bieszczady, woj. podkarpackie",
-    capacity: 90,
-    owner: "Chorągiew Podkarpacka ZHP",
-    status: "active",
-    lastUpdated: "2023-04-22"
-  },
-  {
-    id: "3",
-    name: "Stanica Wodna Bryza",
-    location: "Pomorze, woj. pomorskie",
-    capacity: 75,
-    owner: "Hufiec ZHP Gdańsk-Wrzeszcz",
-    status: "pending",
-    lastUpdated: "2023-06-03"
-  },
-  {
-    id: "4",
-    name: "Baza Obozowa Watra",
-    location: "Tatry, woj. małopolskie", 
-    capacity: 150,
-    owner: "Chorągiew Krakowska ZHP",
-    status: "active",
-    lastUpdated: "2023-03-17"
-  },
-  {
-    id: "5",
-    name: "Ośrodek Harcerski Perkoz",
-    location: "Mazury, woj. warmińsko-mazurskie",
-    capacity: 200,
-    owner: "Główna Kwatera ZHP",
-    status: "active",
-    lastUpdated: "2023-05-30"
-  },
-  {
-    id: "6",
-    name: "Stanica Harcerska Zielona Polana",
-    location: "Bory Tucholskie, woj. pomorskie",
-    capacity: 85,
-    owner: "Hufiec ZHP Toruń",
-    status: "inactive",
-    lastUpdated: "2023-02-11"
-  },
-  {
-    id: "7",
-    name: "Baza Obozowa Dolina Wilka",
-    location: "Sudety, woj. dolnośląskie",
-    capacity: 100,
-    owner: "Chorągiew Dolnośląska ZHP",
-    status: "active",
-    lastUpdated: "2023-04-08"
-  }
-];
+type Base = Database['public']['Tables']['bases']['Row'];
 
 const AdminBases = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("all");
-  
-  const filteredBases = BASES_MOCK_DATA.filter(base => {
-    const matchesSearch = base.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         base.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         base.owner.toLowerCase().includes(searchQuery.toLowerCase());
-                         
-    const matchesStatus = statusFilter === "all" || base.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
-  
-  const statusOptions = [
-    { value: "all", label: "Wszystkie statusy" },
-    { value: "active", label: "Aktywna" },
-    { value: "pending", label: "Oczekująca" },
-    { value: "inactive", label: "Nieaktywna" }
-  ];
-  
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  const [bases, setBases] = useState<Base[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingBase, setEditingBase] = useState<Base | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadBases();
+  }, []);
+
+  const loadBases = async () => {
+    try {
+      setLoading(true);
+      const result = await cmsService.getBases();
+      setBases(result.data);
+    } catch (error) {
+      console.error('Error loading bases:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się załadować baz harcerskich",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
-  
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Aktywna";
-      case "pending":
-        return "Oczekująca";
-      case "inactive":
-        return "Nieaktywna";
-      default:
-        return status;
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      await loadBases();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await cmsService.getBases({ search: searchTerm });
+      setBases(result.data);
+    } catch (error) {
+      console.error('Error searching bases:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się wyszukać baz",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleCreateBase = () => {
+    setEditingBase(null);
+    setShowForm(true);
+  };
+
+  const handleEditBase = (base: Base) => {
+    setEditingBase(base);
+    setShowForm(true);
+  };
+
+  const handleDeleteBase = async (id: string) => {
+    try {
+      await cmsService.deleteBase(id);
+      toast({
+        title: "Baza usunięta",
+        description: "Baza harcerska została pomyślnie usunięta",
+      });
+      await loadBases();
+      setShowDeleteDialog(null);
+    } catch (error) {
+      console.error('Error deleting base:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć bazy",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setShowForm(false);
+    setEditingBase(null);
+    loadBases();
+  };
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditingBase(null);
+  };
+
+  const filteredBases = bases.filter(base =>
+    base.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    base.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-scout-500"></div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Bazy harcerskie</h1>
-            <p className="text-muted-foreground">Zarządzaj bazami harcerskimi w systemie</p>
+            <h1 className="text-2xl font-bold tracking-tight">Zarządzanie bazami</h1>
+            <p className="text-muted-foreground">
+              Zarządzaj bazami harcerskimi w systemie
+            </p>
           </div>
-          <Button className="bg-scout-500 hover:bg-scout-600">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Dodaj nową bazę
+          <Button onClick={handleCreateBase} className="bg-scout-500 hover:bg-scout-600">
+            <Plus className="h-4 w-4 mr-2" />
+            Dodaj bazę
           </Button>
         </div>
-        
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <div className="relative w-full sm:w-auto flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-            <Input
-              placeholder="Szukaj bazy..."
-              className="pl-9"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          
-          <select
-            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            {statusOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="border rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">ID</TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Nazwa bazy
-                    <ArrowUpDown className="h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>Lokalizacja</TableHead>
-                <TableHead className="text-center">Pojemność</TableHead>
-                <TableHead>Właściciel</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Ostatnia aktualizacja</TableHead>
-                <TableHead className="text-right">Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredBases.map((base) => (
-                <TableRow key={base.id}>
-                  <TableCell className="font-medium">#{base.id}</TableCell>
-                  <TableCell>{base.name}</TableCell>
-                  <TableCell>{base.location}</TableCell>
-                  <TableCell className="text-center">{base.capacity}</TableCell>
-                  <TableCell>{base.owner}</TableCell>
-                  <TableCell>
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeClass(base.status)}`}>
-                      {getStatusLabel(base.status)}
-                    </span>
-                  </TableCell>
-                  <TableCell>{base.lastUpdated}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="icon" className="h-8 w-8">
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Wyszukiwanie i filtrowanie</CardTitle>
+            <CardDescription>
+              Znajdź konkretną bazę lub przeglądaj wszystkie
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Szukaj po nazwie lub lokalizacji..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                className="flex-1"
+              />
+              <Button onClick={handleSearch} variant="outline">
+                <Search className="h-4 w-4 mr-2" />
+                Szukaj
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-4">
+          {filteredBases.length === 0 ? (
+            <Card>
+              <CardContent className="flex items-center justify-center h-32">
+                <p className="text-muted-foreground">
+                  {searchTerm ? "Nie znaleziono baz spełniających kryteria wyszukiwania" : "Brak baz harcerskich w systemie"}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredBases.map((base) => (
+              <Card key={base.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-lg font-semibold">{base.name}</h3>
+                        {base.featured && (
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                            <Star className="h-3 w-3 mr-1" />
+                            Polecana
+                          </Badge>
+                        )}
+                        <Badge variant="outline">{base.location}</Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-3">
+                        <div>
+                          <span className="font-medium">Ocena:</span> {base.rating}/5
+                        </div>
+                        <div>
+                          <span className="font-medium">Cena:</span> {base.price || "Brak"}
+                        </div>
+                        <div>
+                          <span className="font-medium">Pojemność:</span> {base.capacity || "Brak"}
+                        </div>
+                        <div>
+                          <span className="font-medium">Utworzono:</span> {new Date(base.created_at).toLocaleDateString('pl-PL')}
+                        </div>
+                      </div>
+                      
+                      {base.description && (
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {base.description}
+                        </p>
+                      )}
+                      
+                      {base.amenities && base.amenities.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {base.amenities.map((amenity, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {amenity}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2 ml-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(`/base/${base.id}`, '_blank')}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditBase(base)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowDeleteDialog(base.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
-        
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-500">
-            Pokazuje {filteredBases.length} z {BASES_MOCK_DATA.length} baz
-          </div>
-          <div className="flex gap-1">
-            <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
-              Poprzednia
-            </Button>
-            <Button variant="outline" size="sm">
-              {currentPage}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage + 1)}>
-              Następna
-            </Button>
-          </div>
-        </div>
+
+        {/* Form Dialog */}
+        <Dialog open={showForm} onOpenChange={setShowForm}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <BaseForm
+              base={editingBase}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!showDeleteDialog} onOpenChange={() => setShowDeleteDialog(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Potwierdź usunięcie</DialogTitle>
+              <DialogDescription>
+                Czy na pewno chcesz usunąć tę bazę harcerską? Tej operacji nie można cofnąć.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(null)}
+              >
+                Anuluj
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => showDeleteDialog && handleDeleteBase(showDeleteDialog)}
+              >
+                Usuń
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
