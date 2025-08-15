@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { SearchIcon, Menu, User, MapPin, Heart, MessageSquare, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/lib/auth";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(true); // This would normally be determined by auth state
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,12 +61,21 @@ const Navbar = () => {
             )}
           </nav>
           <div className="flex items-center gap-2">
-            <Link to="/login" className="px-4 py-2 rounded-full hover:bg-scout-50 transition-colors">
-              Zaloguj
-            </Link>
-            <Link to="/register" className="bg-scout-500 text-white px-4 py-2 rounded-full hover:bg-scout-600 transition-colors">
-              Rejestracja
-            </Link>
+            {user ? (
+              <Link to="/profile" className="px-4 py-2 rounded-full hover:bg-scout-50 transition-colors flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Profil
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="px-4 py-2 rounded-full hover:bg-scout-50 transition-colors">
+                  Zaloguj
+                </Link>
+                <Link to="/register" className="bg-scout-500 text-white px-4 py-2 rounded-full hover:bg-scout-600 transition-colors">
+                  Rejestracja
+                </Link>
+              </>
+            )}
           </div>
         </div>
         
@@ -105,12 +115,20 @@ const Navbar = () => {
               )}
             </nav>
             <div className="flex flex-col gap-3 mt-6 px-2">
-              <Link to="/login" className="w-full text-center py-2.5 border border-scout-500 text-scout-500 rounded-xl font-medium">
-                Zaloguj
-              </Link>
-              <Link to="/register" className="w-full text-center bg-scout-500 text-white py-2.5 rounded-xl font-medium">
-                Rejestracja
-              </Link>
+              {user ? (
+                <Link to="/profile" className="w-full text-center bg-scout-500 text-white py-2.5 rounded-xl font-medium">
+                  Mój profil
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login" className="w-full text-center py-2.5 border border-scout-500 text-scout-500 rounded-xl font-medium">
+                    Zaloguj
+                  </Link>
+                  <Link to="/register" className="w-full text-center bg-scout-500 text-white py-2.5 rounded-xl font-medium">
+                    Rejestracja
+                  </Link>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>
