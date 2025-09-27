@@ -1,342 +1,399 @@
-
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
-import SearchBar from "@/components/ui/SearchBar";
-import FeaturedBase from "@/components/ui/FeaturedBase";
-import { useQuery } from "@tanstack/react-query";
-import { fetchFeaturedBases } from "@/services/bases";
-import MapExplorer from "@/components/ui/MapExplorer";
-import RecentSearches from "@/components/ui/RecentSearches";
-import TopBases from "@/components/ui/TopBases";
-import { ArrowRight, Users, Map, MapPin, Calendar, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Trophy, 
+  Users, 
+  Target, 
+  Timer, 
+  ArrowRight, 
+  CheckCircle,
+  Calendar,
+  MapPin,
+  Medal,
+  BarChart3,
+  FileText,
+  Zap
+} from "lucide-react";
 
 const Index = () => {
-  const { data: featuredBases = [], isLoading } = useQuery({
-    queryKey: ["featured-bases"],
-    queryFn: () => fetchFeaturedBases(8),
-  });
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-sports-500 rounded-lg flex items-center justify-center">
+                <Trophy className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-bold text-xl text-gray-900">ScoutBase Hub</span>
+            </Link>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <Link to="/events" className="text-gray-600 hover:text-gray-900 transition-colors">
+                Wydarzenia
+              </Link>
+              <Link to="/events/1/results" className="text-gray-600 hover:text-gray-900 transition-colors">
+                Wyniki na żywo
+              </Link>
+              <Button asChild className="bg-sports-500 hover:bg-sports-600">
+                <Link to="/events">
+                  Panel organizatora
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <section className="pt-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-scout-50/30 to-white/0 pointer-events-none"></div>
-        <div className="container px-4 pt-12 pb-16 md:pt-20 md:pb-24 relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-8 md:mb-12 animate-fade-up" style={{ animationDelay: '0.1s' }}>
-            <div className="inline-block bg-scout-50 text-scout-600 font-medium px-3 py-1 rounded-full text-sm mb-4">
-              Ogólnopolska baza harcerskich noclegów
+      <section className="pt-32 pb-20 px-4">
+        <div className="container mx-auto text-center">
+          <div className="max-w-4xl mx-auto">
+            <div className="inline-flex items-center bg-sports-50 text-sports-700 px-4 py-2 rounded-full text-sm font-medium mb-8">
+              <Zap className="h-4 w-4 mr-2" />
+              System Zawodów Sportowych w Czasie Rzeczywistym
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-              Znajdź <span className="text-scout-500">idealną bazę</span> na swój obóz harcerski
+            
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Kompleksowy system zarządzania 
+              <span className="text-sports-500"> zawodami sportowymi</span>
             </h1>
-            <p className="text-xl text-muted-foreground">
-              Przeglądaj stanice, ośrodki obozowe i pola namiotowe w całej Polsce. 
-              Porównuj, rezerwuj i ciesz się udanym obozem.
+            
+            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+              Od zgłoszeń drużyn przez wprowadzanie wyników w czasie rzeczywistym 
+              po automatyczne generowanie klasyfikacji i dokumentów. 
+              Wszystko w jednej platformie dla Pomorskiego Zrzeszenia LZS.
             </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto animate-fade-up" style={{ animationDelay: '0.3s' }}>
-            <SearchBar />
-          </div>
-        </div>
-      </section>
-      
-      {/* Featured Bases Section */}
-      <section className="py-12 md:py-16">
-        <div className="container px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold">Polecane bazy</h2>
-            <Link to="/search" className="text-scout-500 hover:text-scout-600 transition-colors font-medium flex items-center gap-1">
-              Zobacz wszystkie
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {isLoading && <div className="text-sm text-muted-foreground">Ładowanie...</div>}
-            {!isLoading && featuredBases.map((base, idx) => (
-              <div key={base.id} className="animate-fade-up" style={{ animationDelay: `${0.1 + (idx + 1) * 0.1}s` }}>
-                <FeaturedBase {...base} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Map & Recent Searches Section */}
-      <section className="py-12 md:py-16 bg-gradient-to-b from-white to-scout-50/20">
-        <div className="container px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <MapExplorer />
-            </div>
-            <div className="space-y-8">
-              <RecentSearches />
-              <TopBases />
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button asChild size="lg" className="bg-sports-500 hover:bg-sports-600 text-lg px-8 py-4">
+                <Link to="/events/create">
+                  <Trophy className="h-5 w-5 mr-2" />
+                  Rozpocznij zarządzanie wydarzeniem
+                </Link>
+              </Button>
+              
+              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-4">
+                <Link to="/events/1/results">
+                  <BarChart3 className="h-5 w-5 mr-2" />
+                  Zobacz wyniki na żywo
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
-      
+
       {/* Features Section */}
-      <section className="py-12 md:py-16">
-        <div className="container px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Wszystko, czego potrzebujesz do organizacji obozu
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Wszystko czego potrzebujesz w jednym miejscu
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Nasza platforma zapewnia kompleksowe narzędzia do znalezienia i rezerwacji idealnej bazy harcerskiej
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              System obsługuje pełny cykl zawodów sportowych - od pierwszych zgłoszeń 
+              po finalne protokoły i dyplomy.
             </p>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Team Registration */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-sports-100 rounded-lg flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-sports-600" />
+                </div>
+                <CardTitle>Rejestracja drużyn</CardTitle>
+                <CardDescription>
+                  Prosty formularz zgłoszeniowy z walidacją danych zawodników
+                  i automatyczną weryfikacją dokumentów zgodnie z regulaminem.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Judge Panel */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-sports-100 rounded-lg flex items-center justify-center mb-4">
+                  <Target className="h-6 w-6 text-sports-600" />
+                </div>
+                <CardTitle>Panel sędziego</CardTitle>
+                <CardDescription>
+                  Szybkie wprowadzanie wyników na tablecie z obsługą QR kodów
+                  i trybem offline dla stabilnej pracy w terenie.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Live Results */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-sports-100 rounded-lg flex items-center justify-center mb-4">
+                  <Timer className="h-6 w-6 text-sports-600" />
+                </div>
+                <CardTitle>Wyniki na żywo</CardTitle>
+                <CardDescription>
+                  Automatyczne obliczanie klasyfikacji indywidualnych i drużynowych
+                  z publikacją wyników w czasie rzeczywistym.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Office Management */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-sports-100 rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-sports-600" />
+                </div>
+                <CardTitle>Biuro zawodów</CardTitle>
+                <CardDescription>
+                  Centralne miejsce do zarządzania zgłoszeniami, generowania
+                  list startowych i publikacji oficjalnych wyników.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Document Generation */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-sports-100 rounded-lg flex items-center justify-center mb-4">
+                  <Medal className="h-6 w-6 text-sports-600" />
+                </div>
+                <CardTitle>Dokumenty i dyplomy</CardTitle>
+                <CardDescription>
+                  Automatyczne generowanie protokołów zawodów, dyplomów,
+                  list startowych i raportów frekwencji.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Multi-Event Support */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-sports-100 rounded-lg flex items-center justify-center mb-4">
+                  <Calendar className="h-6 w-6 text-sports-600" />
+                </div>
+                <CardTitle>Wiele wydarzeń</CardTitle>
+                <CardDescription>
+                  Obsługa wielu zawodów jednocześnie z możliwością 
+                  klonowania ustawień dla przyszłych wydarzeń.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Current Events Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Aktualne wydarzenia
+            </h2>
+            <p className="text-xl text-gray-600">
+              Zobacz co się dzieje w Pomorskim Zrzeszeniu LZS
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Live Event */}
+            <Card className="border-sports-200 bg-gradient-to-br from-sports-50 to-white">
+              <CardHeader>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                    <Zap className="h-3 w-3 mr-1" />
+                    Na żywo
+                  </div>
+                  <span className="text-sm text-gray-500">Dziś</span>
+                </div>
+                <CardTitle>Mistrzostwa LZS w Strzelectwie</CardTitle>
+                <CardDescription>
+                  <div className="flex items-center mt-2">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    Kłanino, woj. pomorskie
+                  </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span>Drużyny:</span>
+                    <span className="font-medium">24/30</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Zawodnicy:</span>
+                    <span className="font-medium">144</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Konkurencje:</span>
+                    <span className="font-medium">2/4 ukończone</span>
+                  </div>
+                </div>
+                <Button asChild className="w-full bg-sports-500 hover:bg-sports-600">
+                  <Link to="/events/1/results">
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Zobacz wyniki
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Event */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                    Zapisy otwarte
+                  </div>
+                  <span className="text-sm text-gray-500">20 wrz</span>
+                </div>
+                <CardTitle>Biegi Przełajowe LZS</CardTitle>
+                <CardDescription>
+                  <div className="flex items-center mt-2">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    Starżyno, woj. pomorskie
+                  </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span>Zapisy do:</span>
+                    <span className="font-medium">15 wrz</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Drużyny:</span>
+                    <span className="font-medium">12/25</span>
+                  </div>
+                </div>
+                <Button asChild variant="outline" className="w-full">
+                  <Link to="/events/2/register">
+                    <Users className="h-4 w-4 mr-2" />
+                    Zgłoś drużynę
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Draft Event */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
+                    Projekt
+                  </div>
+                  <span className="text-sm text-gray-500">5 paź</span>
+                </div>
+                <CardTitle>Zawody Wieloboju LZS</CardTitle>
+                <CardDescription>
+                  <div className="flex items-center mt-2">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    Gdańsk, woj. pomorskie
+                  </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span>Status:</span>
+                    <span className="font-medium">W przygotowaniu</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Konkurencje:</span>
+                    <span className="font-medium">4 planowane</span>
+                  </div>
+                </div>
+                <Button asChild variant="outline" className="w-full">
+                  <Link to="/events/3">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Szczegóły
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-sports-500">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Gotowy na rozpoczęcie?
+          </h2>
+          <p className="text-xl text-sports-100 mb-8 max-w-2xl mx-auto">
+            Stwórz swoje pierwsze wydarzenie sportowe i zobacz jak system 
+            może uprościć organizację zawodów.
+          </p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="bg-scout-50 p-3 rounded-xl inline-block mb-4">
-                <Map className="h-6 w-6 text-scout-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Interaktywna mapa</h3>
-              <p className="text-muted-foreground mb-4">
-                Przeglądaj bazy harcerskie na mapie i łatwo odnajduj miejsca w preferowanej przez Ciebie okolicy.
-              </p>
-              <Link to="/map" className="text-scout-500 hover:text-scout-600 font-medium flex items-center gap-1">
-                Sprawdź mapę
-                <ArrowRight className="h-4 w-4" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-4">
+              <Link to="/events/create">
+                <Trophy className="h-5 w-5 mr-2" />
+                Panel organizatora
               </Link>
-            </div>
+            </Button>
             
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="bg-scout-50 p-3 rounded-xl inline-block mb-4">
-                <Calendar className="h-6 w-6 text-scout-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Terminy i dostępność</h3>
-              <p className="text-muted-foreground mb-4">
-                Sprawdzaj dostępne terminy, rezerwuj online i zarządzaj swoimi rezerwacjami w jednym miejscu.
-              </p>
-              <Link to="/search" className="text-scout-500 hover:text-scout-600 font-medium flex items-center gap-1">
-                Szukaj terminów
-                <ArrowRight className="h-4 w-4" />
+            <Button asChild variant="outline" size="lg" className="text-lg px-8 py-4 text-white border-white hover:bg-white hover:text-sports-500">
+              <Link to="/events/1/results">
+                Zobacz demo wyników
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="bg-scout-50 p-3 rounded-xl inline-block mb-4">
-                <Users className="h-6 w-6 text-scout-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Dostosowane do Twoich potrzeb</h3>
-              <p className="text-muted-foreground mb-4">
-                Filtruj bazy wg liczby uczestników, wyposażenia, infrastruktury i atrakcji w okolicy.
-              </p>
-              <Link to="/search" className="text-scout-500 hover:text-scout-600 font-medium flex items-center gap-1">
-                Filtruj bazy
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
+            </Button>
           </div>
         </div>
       </section>
-      
-      {/* Call to Action */}
-      <section className="py-12 md:py-16 bg-scout-500 text-white">
-        <div className="container px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Jesteś właścicielem bazy harcerskiej?
-            </h2>
-            <p className="text-lg opacity-90 mb-8">
-              Dołącz do nas i zaprezentuj swoją bazę tysiącom harcerzy i instruktorów z całej Polski. 
-              To proste i całkowicie bezpłatne.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/add-base" className="bg-white text-scout-500 font-medium px-6 py-3 rounded-xl hover:bg-scout-50 transition-colors">
-                Dodaj swoją bazę
-              </Link>
-              <Link to="/owner-info" className="border border-white/30 px-6 py-3 rounded-xl hover:bg-white/10 transition-colors">
-                Dowiedz się więcej
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Testimonials */}
-      <section className="py-12 md:py-16">
-        <div className="container px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Co mówią o nas użytkownicy
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Setki drużynowych i tysące harcerzy korzysta już z naszej platformy
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center mb-4 gap-2">
-                <div className="h-10 w-10 rounded-full bg-scout-100 flex items-center justify-center font-medium text-scout-500">
-                  JK
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-sports-500 rounded-lg flex items-center justify-center">
+                  <Trophy className="h-5 w-5 text-white" />
                 </div>
-                <div>
-                  <h4 className="font-medium">Jan Kowalski</h4>
-                  <p className="text-sm text-muted-foreground">Drużynowy, Warszawa</p>
-                </div>
+                <span className="font-bold text-xl">ScoutBase Hub</span>
               </div>
-              <p className="text-muted-foreground">
-                "Nareszcie wszystkie bazy harcerskie w jednym miejscu! Zaoszczędziłem mnóstwo czasu na poszukiwaniach idealnego miejsca na obóz dla mojej drużyny."
+              <p className="text-gray-400 mb-4 max-w-md">
+                Nowoczesny system zarządzania zawodami sportowymi 
+                dla Pomorskiego Zrzeszenia LZS. Wszystko w jednym miejscu.
               </p>
+              <div className="text-sm text-gray-500">
+                © 2024 ScoutBase Hub. Wszystkie prawa zastrzeżone.
+              </div>
             </div>
             
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center mb-4 gap-2">
-                <div className="h-10 w-10 rounded-full bg-scout-100 flex items-center justify-center font-medium text-scout-500">
-                  AN
-                </div>
-                <div>
-                  <h4 className="font-medium">Anna Nowak</h4>
-                  <p className="text-sm text-muted-foreground">Komendantka hufca, Kraków</p>
-                </div>
-              </div>
-              <p className="text-muted-foreground">
-                "Dzięki tej platformie znaleźliśmy fantastyczną bazę dla naszego obozu hufca. Właściciel bazy szybko odpowiadał na nasze pytania przez wbudowany komunikator."
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center mb-4 gap-2">
-                <div className="h-10 w-10 rounded-full bg-scout-100 flex items-center justify-center font-medium text-scout-500">
-                  PW
-                </div>
-                <div>
-                  <h4 className="font-medium">Piotr Wiśniewski</h4>
-                  <p className="text-sm text-muted-foreground">Właściciel bazy, Mazury</p>
-                </div>
-              </div>
-              <p className="text-muted-foreground">
-                "Odkąd dodałem naszą stanicę do katalogu, liczba rezerwacji wzrosła o 40%! Szczególnie doceniam funkcję zarządzania terminami i obsługi zapytań."
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Posts Section */}
-      <section className="py-12 md:py-16 bg-gradient-to-b from-white to-scout-50/30">
-        <div className="container px-4">
-          <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold">Ogłoszenia "Szukam bazy"</h2>
-              <p className="text-muted-foreground">Najnowsze zapytania od drużyn i hufców</p>
-            </div>
-            <Link to="/posts" className="text-scout-500 hover:text-scout-600 transition-colors font-medium flex items-center gap-1">
-              Zobacz wszystkie
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-scout-100">
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-scout-50 text-scout-700 text-sm font-medium px-3 py-1 rounded-full">
-                  Pilne
-                </div>
-                <p className="text-sm text-muted-foreground">Dodano 2 dni temu</p>
+              <h3 className="font-semibold mb-4">System</h3>
+              <div className="space-y-2 text-sm text-gray-400">
+                <Link to="/events" className="block hover:text-white transition-colors">
+                  Panel organizatora
+                </Link>
+                <Link to="/events/1/results" className="block hover:text-white transition-colors">
+                  Wyniki na żywo
+                </Link>
+                <div className="block">Dokumentacja</div>
+                <div className="block">Pomoc techniczna</div>
               </div>
-              <h3 className="text-xl font-bold mb-2">Poszukujemy bazy nad jeziorem</h3>
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>Mazury lub Warmia</span>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Users className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>60-80 osób</span>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>15-29 lipca 2023</span>
-                </div>
-              </div>
-              <p className="text-muted-foreground mb-4 line-clamp-3">
-                Poszukujemy bazy z dostępem do jeziora, pomostem i możliwością uprawiania sportów wodnych. Potrzebny własny sprzęt pionierski.
-              </p>
-              <button className="w-full flex items-center justify-center gap-2 bg-scout-50 text-scout-700 font-medium py-2 rounded-lg hover:bg-scout-100 transition-colors">
-                <MessageCircle className="h-5 w-5" />
-                <span>Odpowiedz</span>
-              </button>
             </div>
             
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-scout-100">
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-scout-50 text-scout-700 text-sm font-medium px-3 py-1 rounded-full">
-                  Nowe
-                </div>
-                <p className="text-sm text-muted-foreground">Dodano 5 dni temu</p>
+            <div>
+              <h3 className="font-semibold mb-4">Organizator</h3>
+              <div className="space-y-2 text-sm text-gray-400">
+                <div>Pomorskie Zrzeszenie LZS</div>
+                <div>ul. Sportowa 1</div>
+                <div>80-001 Gdańsk</div>
+                <div>tel. +48 58 123 456</div>
               </div>
-              <h3 className="text-xl font-bold mb-2">Baza w górach dla 40 osób</h3>
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>Beskidy lub Bieszczady</span>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Users className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>30-40 osób</span>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>1-15 sierpnia 2023</span>
-                </div>
-              </div>
-              <p className="text-muted-foreground mb-4 line-clamp-3">
-                Szukamy bazy z zapleczem kuchennym i sanitarnym. Mile widziane szlaki turystyczne w okolicy oraz dostęp do sklepu.
-              </p>
-              <button className="w-full flex items-center justify-center gap-2 bg-scout-50 text-scout-700 font-medium py-2 rounded-lg hover:bg-scout-100 transition-colors">
-                <MessageCircle className="h-5 w-5" />
-                <span>Odpowiedz</span>
-              </button>
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-scout-100">
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-scout-50 text-scout-700 text-sm font-medium px-3 py-1 rounded-full">
-                  Popularne
-                </div>
-                <p className="text-sm text-muted-foreground">Dodano tydzień temu</p>
-              </div>
-              <h3 className="text-xl font-bold mb-2">Stanica dla szczepu - 120 osób</h3>
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>Dowolny region Polski</span>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Users className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>100-120 osób</span>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-2 text-scout-500" />
-                  <span>Lipiec 2023 (3 tygodnie)</span>
-                </div>
-              </div>
-              <p className="text-muted-foreground mb-4 line-clamp-3">
-                Poszukujemy dużej stanicy lub ośrodka z pełnym wyżywieniem. Potrzebne miejsca noclegowe w budynkach i pole namiotowe.
-              </p>
-              <button className="w-full flex items-center justify-center gap-2 bg-scout-50 text-scout-700 font-medium py-2 rounded-lg hover:bg-scout-100 transition-colors">
-                <MessageCircle className="h-5 w-5" />
-                <span>Odpowiedz</span>
-              </button>
             </div>
           </div>
         </div>
-      </section>
-      
-      <Footer />
-      <MobileNav />
+      </footer>
     </div>
   );
 };
