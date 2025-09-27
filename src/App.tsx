@@ -19,6 +19,12 @@ import AdminReviews from "./pages/admin/AdminReviews";
 import AdminStatistics from "./pages/admin/AdminStatistics";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+// Competition System Pages
+import EventsDashboard from "./pages/EventsDashboard";
+import TeamRegistration from "./pages/TeamRegistration";
+import JudgePanel from "./pages/JudgePanel";
+import CompetitionOffice from "./pages/CompetitionOffice";
+import PublicResults from "./pages/PublicResults";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +44,13 @@ const App = () => (
           <Route path="/base/:id" element={<BaseDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* Competition System Routes */}
+          <Route path="/events" element={<EventsDashboard />} />
+          <Route path="/events/:eventId/register" element={<TeamRegistration />} />
+          <Route path="/events/:eventId/results" element={<PublicResults />} />
+          <Route path="/events/:eventId/office" element={<CompetitionOffice />} />
+          <Route path="/competitions/:competitionId/judge" element={<JudgePanel />} />
           
           {/* Admin CMS Routes */}
           <Route path="/admin" element={<AdminDashboard />} />
