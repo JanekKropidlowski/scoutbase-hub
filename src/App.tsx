@@ -25,6 +25,7 @@ import TeamRegistration from "./pages/TeamRegistration";
 import JudgePanel from "./pages/JudgePanel";
 import CompetitionOffice from "./pages/CompetitionOffice";
 import PublicResults from "./pages/PublicResults";
+import CreateEvent from "./pages/CreateEvent";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
           
           {/* Competition System Routes */}
           <Route path="/events" element={<EventsDashboard />} />
+          <Route path="/events/create" element={<CreateEvent />} />
           <Route path="/events/:eventId/register" element={<TeamRegistration />} />
           <Route path="/events/:eventId/results" element={<PublicResults />} />
           <Route path="/events/:eventId/office" element={<CompetitionOffice />} />

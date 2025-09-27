@@ -119,9 +119,11 @@ const EventsDashboard = () => {
                 <Settings className="h-4 w-4 mr-2" />
                 Ustawienia
               </Button>
-              <Button className="bg-sports-500 hover:bg-sports-600">
-                <Plus className="h-4 w-4 mr-2" />
-                Nowe wydarzenie
+              <Button className="bg-sports-500 hover:bg-sports-600" asChild>
+                <Link to="/events/create">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nowe wydarzenie
+                </Link>
               </Button>
             </div>
           </div>
@@ -287,9 +289,11 @@ const EventsDashboard = () => {
               <CardDescription className="mb-4">
                 Rozpocznij od stworzenia pierwszego wydarzenia sportowego
               </CardDescription>
-              <Button className="bg-sports-500 hover:bg-sports-600">
-                <Plus className="h-4 w-4 mr-2" />
-                Stwórz pierwsze wydarzenie
+              <Button className="bg-sports-500 hover:bg-sports-600" asChild>
+                <Link to="/events/create">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Stwórz pierwsze wydarzenie
+                </Link>
               </Button>
             </CardContent>
           </Card>

@@ -69,7 +69,7 @@ const Index = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button asChild size="lg" className="bg-sports-500 hover:bg-sports-600 text-lg px-8 py-4">
-                <Link to="/events">
+                <Link to="/events/create">
                   <Trophy className="h-5 w-5 mr-2" />
                   Rozpocznij zarządzanie wydarzeniem
                 </Link>
@@ -332,7 +332,7 @@ const Index = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-4">
-              <Link to="/events">
+              <Link to="/events/create">
                 <Trophy className="h-5 w-5 mr-2" />
                 Panel organizatora
               </Link>
